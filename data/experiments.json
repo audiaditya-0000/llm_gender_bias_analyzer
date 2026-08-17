@@ -1,16 +1,44 @@
 [
   {
-    "id": "a424a807-a459-497a-a288-67fbb5bf4c2d",
-    "scenario_id": "e8717e32-c17c-4dc2-ab24-496c88cca425",
-    "scaffold_id": "9e503d94-76b1-4dd5-8ea3-a838c3699423",
+    "id": "ee3f190e-0aaf-49ae-a349-e2925e205305",
+    "scenario_id": "246836fe-2120-4e62-a93c-c648c62a5e82",
+    "scaffold_id": "e4fa300d-828c-42e2-b0ba-554fac07c2b0",
+    "model": "llama3.2:latest",
+    "temperature": 0.2,
+    "top_p": 0.9,
+    "max_tokens": 512,
+    "seed": 42,
+    "num_replicates": 1,
+    "swap_type": "npc",
+    "status": "completed",
+    "created_at": "2026-08-17T14:26:29.814041"
+  },
+  {
+    "id": "a4c2f4b0-5fea-47c9-b421-b6e9f1e5b053",
+    "scenario_id": "246836fe-2120-4e62-a93c-c648c62a5e82",
+    "scaffold_id": "e4fa300d-828c-42e2-b0ba-554fac07c2b0",
     "model": "llama3.2:latest",
     "temperature": 0.7,
     "top_p": 0.9,
     "max_tokens": 512,
-    "seed": null,
+    "seed": 42,
     "num_replicates": 20,
-    "swap_type": "player",
+    "swap_type": "npc",
     "status": "completed",
-    "created_at": "2026-07-29T02:06:04.527339"
+    "created_at": "2026-08-17T14:33:12.988582"
+  },
+  {
+    "id": "0f555f24-4973-4293-89b7-9b524ecfef71",
+    "scenario_id": "246836fe-2120-4e62-a93c-c648c62a5e82",
+    "scaffold_id": "e4fa300d-828c-42e2-b0ba-554fac07c2b0",
+    "model": "llama3.2:latest",
+    "temperature": 0.7,
+    "top_p": 0.9,
+    "max_tokens": 512,
+    "seed": 42,
+    "num_replicates": 20,
+    "swap_type": "npc",
+    "status": "completed",
+    "created_at": "2026-08-17T15:01:10.227547"
   }
 ]

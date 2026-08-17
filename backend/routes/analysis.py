@@ -45,9 +45,9 @@ def _compute_metrics(experiment_id: Optional[str] = None) -> dict:
             "condition": condition,
         }
 
-        if "male" in condition:
+        if condition.startswith("male_"):
             male_codings.append(entry)
-        elif "female" in condition:
+        elif condition.startswith("female_"):
             female_codings.append(entry)
 
     def _averages(codings_list: list[dict]) -> dict:
