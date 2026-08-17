@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, Query
 from typing import Optional
-from storage import read_json, find_by_id
+from storage import read_json, write_json, find_by_id, delete_by_id
 
 router = APIRouter(prefix="/api/responses", tags=["responses"])
 
@@ -54,3 +54,33 @@ def get_response(response_id: str):
     if not item:
         raise HTTPException(status_code=404, detail="Response not found")
     return item
+
+
+@router.delete("/{response_id}")
+def remove_response(response_id: str):
+    """Delete a single response by ID."""
+    if not delete_by_id(FILENAME, response_id):
+        raise HTTPException(status_code=404, detail="Response not found")
+    return {"deleted": True}
+
+
+@router.delete("")
+def bulk_delete_responses(
+    experiment_id: Optional[str] = Query(None),
+):
+    """
+    Bulk-delete responses.
+    If experiment_id is provided, deletes only responses for that experiment.
+    If no filter is provided, deletes ALL responses.
+    """
+    data = read_json(FILENAME)
+    original_len = len(data)
+
+    if experiment_id:
+        data = [r for r in data if r.get("experiment_id") != experiment_id]
+    else:
+        data = []
+
+    removed = original_len - len(data)
+    write_json(FILENAME, data)
+    return {"deleted": removed}

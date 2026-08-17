@@ -1,15 +1,16 @@
 [
   {
-    "id": "4092b236-f677-497d-ba16-ab63817f1b6a",
+    "id": "a424a807-a459-497a-a288-67fbb5bf4c2d",
     "scenario_id": "e8717e32-c17c-4dc2-ab24-496c88cca425",
     "scaffold_id": "9e503d94-76b1-4dd5-8ea3-a838c3699423",
-    "model": "llama3.2",
+    "model": "llama3.2:latest",
     "temperature": 0.7,
     "top_p": 0.9,
     "max_tokens": 512,
-    "seed": 42,
+    "seed": null,
     "num_replicates": 20,
+    "swap_type": "player",
     "status": "completed",
-    "created_at": "2026-07-05T13:59:54.641369"
+    "created_at": "2026-07-29T02:06:04.527339"
   }
 ]

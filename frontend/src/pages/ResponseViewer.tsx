@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Search, ChevronDown, ChevronUp, Bot, User, Play } from "lucide-react";
+import { Search, ChevronDown, ChevronUp, Bot, User, Play, Trash2 } from "lucide-react";
 import { responsesApi, experimentsApi } from "../api/client";
 import type { ExperimentResponseItem, Experiment } from "../types";
 
@@ -17,6 +17,38 @@ export default function ResponseViewer() {
   const limit = 20;
 
   const [expandedRow, setExpandedRow] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState(false);
+
+  async function handleDeleteSingle(e: React.MouseEvent, id: string) {
+    e.stopPropagation();
+    if (!confirm("Delete this response?")) return;
+    try {
+      setDeleting(true);
+      await responsesApi.delete(id);
+      if (expandedRow === id) setExpandedRow(null);
+      await loadResponses();
+    } catch (err) {
+      console.error("Failed to delete response:", err);
+    } finally {
+      setDeleting(false);
+    }
+  }
+
+  async function handleBulkDelete() {
+    const label = experimentId ? "all responses for this experiment" : "ALL responses";
+    if (!confirm(`Are you sure you want to delete ${label}? This cannot be undone.`)) return;
+    try {
+      setDeleting(true);
+      await responsesApi.bulkDelete(experimentId || undefined);
+      setExpandedRow(null);
+      setPage(0);
+      await loadResponses();
+    } catch (err) {
+      console.error("Failed to bulk delete responses:", err);
+    } finally {
+      setDeleting(false);
+    }
+  }
 
   useEffect(() => {
     loadExperiments();
@@ -63,6 +95,16 @@ export default function ResponseViewer() {
             Review and search through all generated LLM responses
           </p>
         </div>
+        {total > 0 && (
+          <button
+            className="btn-secondary !border-red-500/40 !text-red-400 hover:!bg-red-500/10 flex items-center gap-2"
+            onClick={handleBulkDelete}
+            disabled={deleting}
+          >
+            <Trash2 size={14} />
+            {experimentId ? "Delete Experiment Responses" : "Delete All Responses"}
+          </button>
+        )}
       </div>
 
       {/* Filters */}
@@ -132,7 +174,7 @@ export default function ResponseViewer() {
                 <th className="px-6 py-3 font-medium border-b border-surface-700/50">Condition</th>
                 <th className="px-6 py-3 font-medium border-b border-surface-700/50">Rep</th>
                 <th className="px-6 py-3 font-medium border-b border-surface-700/50">Preview</th>
-                <th className="px-6 py-3 font-medium border-b border-surface-700/50"></th>
+                <th className="px-6 py-3 font-medium border-b border-surface-700/50 w-20"></th>
               </tr>
             </thead>
             <tbody className="divide-y divide-surface-700/30">
@@ -171,8 +213,20 @@ export default function ResponseViewer() {
                         <td className="px-6 py-4 text-surface-400 max-w-xs truncate">
                           {res.generated_response.substring(0, 80)}...
                         </td>
-                        <td className="px-6 py-4 text-right text-surface-500">
-                          {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                        <td className="px-6 py-4 text-right">
+                          <div className="flex items-center justify-end gap-2">
+                            <button
+                              className="p-1.5 rounded-lg text-surface-500 hover:text-red-400 hover:bg-red-500/10 transition-colors"
+                              onClick={(e) => handleDeleteSingle(e, res.id)}
+                              disabled={deleting}
+                              title="Delete response"
+                            >
+                              <Trash2 size={14} />
+                            </button>
+                            <span className="text-surface-500">
+                              {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                            </span>
+                          </div>
                         </td>
                       </tr>
                       {isExpanded && (

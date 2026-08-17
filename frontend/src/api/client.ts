@@ -154,6 +154,12 @@ export const responsesApi = {
     return request<PaginatedResponses>(`/responses${qs ? `?${qs}` : ""}`);
   },
   get: (id: string) => request<ExperimentResponseItem>(`/responses/${id}`),
+  delete: (id: string) =>
+    request<{ deleted: boolean }>(`/responses/${id}`, { method: "DELETE" }),
+  bulkDelete: (experimentId?: string) => {
+    const qs = experimentId ? `?experiment_id=${experimentId}` : "";
+    return request<{ deleted: number }>(`/responses${qs}`, { method: "DELETE" });
+  },
 };
 
 // ── Coding ───────────────────────────────────────────────────────────────────
