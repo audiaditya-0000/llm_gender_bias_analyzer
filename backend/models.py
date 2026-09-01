@@ -39,11 +39,12 @@ class Scenario(BaseModel):
     scenario_text: str
     category: str
     category_other: Optional[str] = None
-    created_at: str = Field(default_factory=lambda: datetime.utcnow().isoformat())
+    created_at: str = Field(
+        default_factory=lambda: datetime.utcnow().isoformat()
+    )
 
 
 # ── Scaffold ──────────────────────────────────────────────────────────────────
-
 
 class ScaffoldCreate(BaseModel):
     name: str
@@ -58,11 +59,12 @@ class Scaffold(BaseModel):
     prompt: str
     version: str
     notes: Optional[str] = ""
-    created_at: str = Field(default_factory=lambda: datetime.utcnow().isoformat())
+    created_at: str = Field(
+        default_factory=lambda: datetime.utcnow().isoformat()
+    )
 
 
 # ── Counterfactual ────────────────────────────────────────────────────────────
-
 
 class CounterfactualRequest(BaseModel):
     prompt: str
@@ -77,7 +79,6 @@ class CounterfactualResponse(BaseModel):
 
 
 # ── Experiment ────────────────────────────────────────────────────────────────
-
 
 class ExperimentCreate(BaseModel):
     scenario_id: str
@@ -103,11 +104,12 @@ class Experiment(BaseModel):
     num_replicates: int = 20
     swap_type: str = "npc"
     status: str = "configured"  # configured, running, completed, failed
-    created_at: str = Field(default_factory=lambda: datetime.utcnow().isoformat())
+    created_at: str = Field(
+        default_factory=lambda: datetime.utcnow().isoformat()
+    )
 
 
 # ── Response ──────────────────────────────────────────────────────────────────
-
 
 class ExperimentResponse(BaseModel):
     id: str = Field(default_factory=generate_id)
@@ -118,8 +120,10 @@ class ExperimentResponse(BaseModel):
     model: str
     temperature: float
     seed: Optional[int] = None
-    timestamp: str = Field(default_factory=lambda: datetime.utcnow().isoformat())
-    condition: str  # "male_npc", "female_npc", "male_player", "female_player", etc.
+    timestamp: str = Field(
+        default_factory=lambda: datetime.utcnow().isoformat()
+    )
+    condition: str  # "male_npc", "female_npc", etc.
     replicate_number: int
     system_prompt: str
     user_prompt: str
@@ -128,9 +132,9 @@ class ExperimentResponse(BaseModel):
 
 # ── Coding ────────────────────────────────────────────────────────────────────
 
-
 class CodingCreate(BaseModel):
     response_id: str
+    coder_id: str
     truth: float = Field(ge=0.0, le=1.0)
     indeterminacy: float = Field(ge=0.0, le=1.0)
     falsity: float = Field(ge=0.0, le=1.0)
@@ -140,6 +144,7 @@ class CodingCreate(BaseModel):
 class Coding(BaseModel):
     id: str = Field(default_factory=generate_id)
     response_id: str
+    coder_id: str
     truth: float = Field(ge=0.0, le=1.0)
     indeterminacy: float = Field(ge=0.0, le=1.0)
     falsity: float = Field(ge=0.0, le=1.0)
@@ -148,7 +153,6 @@ class Coding(BaseModel):
 
 
 # ── Custom Word Pair ──────────────────────────────────────────────────────────
-
 
 class WordPairCreate(BaseModel):
     male_term: str

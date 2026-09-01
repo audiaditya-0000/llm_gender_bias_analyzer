@@ -18,12 +18,12 @@ export default function ExperimentConfig() {
     temperature: 0.7,
     top_p: 0.9,
     max_tokens: 512,
-    seed: null,
+    seed: 42,
     num_replicates: 20,
     swap_type: "npc",
   });
 
-  const [seedEnabled, setSeedEnabled] = useState(false);
+  const [seedEnabled, setSeedEnabled] = useState(true);
 
   useEffect(() => {
     loadAll();
