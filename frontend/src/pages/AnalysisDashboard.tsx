@@ -1571,7 +1571,7 @@ export default function AnalysisDashboard() {
 
           {/* SUMMARY CARDS */}
 
-          <div className="lg:col-span-4 grid sm:grid-cols-2 lg:grid-cols-4 gap-4 animate-slide-up">
+          <div className="lg:col-span-4 grid sm:grid-cols-2 lg:grid-cols-5 gap-4 animate-slide-up">
 
 
             {/* CODED RESPONSES */}
@@ -1697,6 +1697,60 @@ export default function AnalysisDashboard() {
               </div>
 
             </div>
+
+            {/* AVG I */}
+
+<div className="glass-card p-5">
+
+  <h3 className="text-sm font-semibold text-surface-400 mb-3">
+    Avg Ambiguity / Context (I)
+  </h3>
+
+
+  <div className="flex items-center justify-between">
+
+
+    {/* MALE */}
+
+    <div>
+
+      <div className="text-xs text-surface-500 uppercase tracking-wider mb-1">
+        Male
+      </div>
+
+
+      <div className="text-xl font-bold text-indigo-400">
+
+        {summary.male.avg_I.toFixed(3)}
+
+      </div>
+
+    </div>
+
+
+    <div className="w-px h-8 bg-surface-700" />
+
+
+    {/* FEMALE */}
+
+    <div className="text-right">
+
+      <div className="text-xs text-surface-500 uppercase tracking-wider mb-1">
+        Female
+      </div>
+
+
+      <div className="text-xl font-bold text-rose-400">
+
+        {summary.female.avg_I.toFixed(3)}
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
 
 
             {/* AVG F */}
