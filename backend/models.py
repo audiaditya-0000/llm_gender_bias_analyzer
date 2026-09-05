@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 from typing import Optional
 from datetime import datetime
 import uuid
@@ -68,13 +68,11 @@ class Scaffold(BaseModel):
 
 class CounterfactualRequest(BaseModel):
     prompt: str
-    swap_type: str  # "npc", "player", "third_person"
 
 
 class CounterfactualResponse(BaseModel):
     male_prompt: str
     female_prompt: str
-    swap_type: str
     swaps_made: list[dict]
 
 
@@ -89,7 +87,7 @@ class ExperimentCreate(BaseModel):
     max_tokens: int = 512
     seed: Optional[int] = None
     num_replicates: int = 20
-    swap_type: str = "npc"
+    swap_type: Optional[str] = "npc"
 
 
 class Experiment(BaseModel):
@@ -102,7 +100,7 @@ class Experiment(BaseModel):
     max_tokens: int = 512
     seed: Optional[int] = None
     num_replicates: int = 20
-    swap_type: str = "npc"
+    swap_type: Optional[str] = "npc"
     status: str = "configured"  # configured, running, completed, failed
     created_at: str = Field(
         default_factory=lambda: datetime.utcnow().isoformat()
@@ -113,6 +111,7 @@ class Experiment(BaseModel):
 
 class ExperimentResponse(BaseModel):
     id: str = Field(default_factory=generate_id)
+    pair_id: str = Field(default_factory=generate_id)
     experiment_id: str
     scenario_id: str
     scaffold_id: str
@@ -123,11 +122,27 @@ class ExperimentResponse(BaseModel):
     timestamp: str = Field(
         default_factory=lambda: datetime.utcnow().isoformat()
     )
-    condition: str  # "male_npc", "female_npc", etc.
+    condition: str  # "original", "swapped"
     replicate_number: int
-    system_prompt: str
-    user_prompt: str
+    scaffold_prompt: str = ""
+    scenario_prompt: str = ""
+    system_prompt: Optional[str] = None
+    user_prompt: Optional[str] = None
     generated_response: str
+
+    @model_validator(mode="before")
+    @classmethod
+    def populate_prompt_aliases(cls, data):
+        if isinstance(data, dict):
+            if "scaffold_prompt" not in data and "system_prompt" in data:
+                data["scaffold_prompt"] = data["system_prompt"]
+            if "scenario_prompt" not in data and "user_prompt" in data:
+                data["scenario_prompt"] = data["user_prompt"]
+            if "system_prompt" not in data and "scaffold_prompt" in data:
+                data["system_prompt"] = data["scaffold_prompt"]
+            if "user_prompt" not in data and "scenario_prompt" in data:
+                data["user_prompt"] = data["scenario_prompt"]
+        return data
 
 
 # ── Coding ────────────────────────────────────────────────────────────────────

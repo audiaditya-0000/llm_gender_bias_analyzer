@@ -64,18 +64,12 @@ export interface ScaffoldCreate {
 
 export interface CounterfactualRequest {
   prompt: string;
-
-  swap_type:
-    | "npc"
-    | "player"
-    | "third_person";
 }
 
 
 export interface CounterfactualResponse {
   male_prompt: string;
   female_prompt: string;
-  swap_type: string;
 
   swaps_made: Array<{
     original: string;
@@ -103,7 +97,7 @@ export interface Experiment {
 
   num_replicates: number;
 
-  swap_type: string;
+  swap_type?: string;
 
   status:
     | "configured"
@@ -129,7 +123,7 @@ export interface ExperimentCreate {
 
   num_replicates: number;
 
-  swap_type: string;
+  swap_type?: string;
 }
 
 
@@ -137,6 +131,7 @@ export interface ExperimentCreate {
 
 export interface ExperimentResponseItem {
   id: string;
+  pair_id?: string;
 
   experiment_id: string;
 
@@ -154,24 +149,30 @@ export interface ExperimentResponseItem {
   timestamp: string;
 
   /**
-   * Internal experimental condition.
-   *
-   * Examples:
-   * male_npc
-   * female_npc
-   *
-   * This is intentionally NOT returned by the
-   * blind coding endpoint.
+   * Internal experimental condition ("original" | "swapped").
    */
   condition: string;
 
   replicate_number: number;
 
-  system_prompt: string;
-
-  user_prompt: string;
+  scaffold_prompt?: string;
+  scenario_prompt?: string;
+  system_prompt?: string;
+  user_prompt?: string;
 
   generated_response: string;
+}
+
+
+export interface ResponsePair {
+  pair_id: string;
+  original: ExperimentResponseItem | null;
+  swapped: ExperimentResponseItem | null;
+  replicate_number: number;
+  scenario_id: string;
+  scaffold_id: string;
+  model: string;
+  timestamp: string;
 }
 
 
@@ -183,6 +184,14 @@ export interface PaginatedResponses {
   offset: number;
 
   data: ExperimentResponseItem[];
+}
+
+
+export interface PaginatedPairs {
+  total: number;
+  limit: number;
+  offset: number;
+  data: ResponsePair[];
 }
 
 
@@ -251,6 +260,33 @@ export interface CodingCreate {
 
 // ── Blind Coding ─────────────────────────────────────────────────────────────
 
+export interface BlindVersion {
+  response_id: string;
+  generated_response: string;
+  coding: CodingEntry | null;
+}
+
+export interface BlindPair {
+  pair_id: string;
+  experiment_id: string;
+  scenario_id: string;
+  model: string;
+  replicate_number: number;
+  scenario_prompt: string;
+  scaffold_prompt: string;
+  version_a: BlindVersion;
+  version_b: BlindVersion | null;
+  is_coded: boolean;
+}
+
+export interface BlindPairsResult {
+  total: number;
+  coded: number;
+  remaining: number;
+  coder_id?: string | null;
+  data: BlindPair[];
+}
+
 /**
  * Response returned to a coder.
  *
@@ -296,7 +332,7 @@ export interface BlindResponsesResult {
    */
   coder_id?: string | null;
 
-  data: BlindResponseItem[];
+  data: BlindResponseItem[] | BlindPair[];
 }
 
 

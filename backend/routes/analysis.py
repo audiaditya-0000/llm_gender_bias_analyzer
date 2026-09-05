@@ -118,10 +118,10 @@ def _compute_metrics(experiment_id: Optional[str] = None) -> dict:
             "coder_count": n_coders,
         }
 
-        if condition.startswith("male_"):
+        if condition.startswith("male") or condition == "original":
             male_codings.append(entry)
 
-        elif condition.startswith("female_"):
+        elif condition.startswith("female") or condition == "swapped":
             female_codings.append(entry)
 
     # ---------------------------------------------------------
@@ -234,6 +234,8 @@ def _compute_metrics(experiment_id: Optional[str] = None) -> dict:
         "experiment_count": experiment_count,
         "male": male_stats,
         "female": female_stats,
+        "original": male_stats,
+        "swapped": female_stats,
         "bias_score": bias_score,
         "dimensions": {
             "T": "Stereotype / Gender-based Disadvantage",

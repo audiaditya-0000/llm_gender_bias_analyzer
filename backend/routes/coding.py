@@ -44,6 +44,13 @@ def list_codings(
     return codings
 
 
+import hashlib
+
+def _is_a_first(pair_id: str, seed: Optional[int] = None) -> bool:
+    h = hashlib.md5(f"{seed}_{pair_id}".encode()).hexdigest()
+    return int(h, 16) % 2 == 0
+
+
 # ── Blind Responses ──────────────────────────────────────────────────────────
 
 @router.get("/blind")
@@ -53,20 +60,11 @@ def get_blind_responses(
     coder_id: Optional[str] = Query(None),
 ):
     """
-    Return responses with gender condition hidden.
-
-    If coder_id is provided, only that coder's existing coding
-    is returned for each response.
-
-    Responses are shuffled using the supplied seed.
+    Return responses grouped as blind pairs with condition labels hidden.
+    Each pair has Version A and Version B (counterbalanced/randomized).
     """
-
     responses = read_json(RESPONSES_FILE)
     codings = read_json(CODING_FILE)
-
-    # ---------------------------------------------------------
-    # Filter by experiment
-    # ---------------------------------------------------------
 
     if experiment_id:
         responses = [
@@ -74,19 +72,11 @@ def get_blind_responses(
             if r.get("experiment_id") == experiment_id
         ]
 
-    # ---------------------------------------------------------
-    # Filter coding records by coder
-    # ---------------------------------------------------------
-
     if coder_id:
         codings = [
             c for c in codings
             if c.get("coder_id") == coder_id
         ]
-
-    # ---------------------------------------------------------
-    # Build lookup
-    # ---------------------------------------------------------
 
     coding_lookup = {
         c["response_id"]: c
@@ -94,54 +84,62 @@ def get_blind_responses(
         if c.get("response_id")
     }
 
-    # ---------------------------------------------------------
-    # Shuffle
-    # ---------------------------------------------------------
+    # Group responses by pair_id
+    pairs_dict: dict[str, list[dict]] = {}
+    for r in responses:
+        pid = r.get("pair_id") or r.get("id")
+        if pid not in pairs_dict:
+            pairs_dict[pid] = []
+        pairs_dict[pid].append(r)
+
+    blind_pairs = []
+    for pid, res_list in pairs_dict.items():
+        if len(res_list) >= 2:
+            r1, r2 = res_list[0], res_list[1]
+            if not _is_a_first(pid, shuffle_seed):
+                r1, r2 = r2, r1
+        else:
+            r1 = res_list[0]
+            r2 = None
+
+        coding_a = coding_lookup.get(r1["id"])
+        coding_b = coding_lookup.get(r2["id"]) if r2 else None
+
+        blind_pair = {
+            "pair_id": pid,
+            "experiment_id": r1.get("experiment_id"),
+            "scenario_id": r1.get("scenario_id"),
+            "model": r1.get("model"),
+            "replicate_number": r1.get("replicate_number", 1),
+            "scenario_prompt": r1.get("scenario_prompt", r1.get("user_prompt", "")),
+            "scaffold_prompt": r1.get("scaffold_prompt", r1.get("system_prompt", "")),
+            "version_a": {
+                "response_id": r1["id"],
+                "generated_response": r1.get("generated_response", ""),
+                "coding": coding_a,
+            },
+            "version_b": {
+                "response_id": r2["id"],
+                "generated_response": r2.get("generated_response", ""),
+                "coding": coding_b,
+            } if r2 else None,
+            "is_coded": bool(coding_a and (coding_b or r2 is None)),
+        }
+        blind_pairs.append(blind_pair)
 
     if shuffle_seed is not None:
-        random.seed(shuffle_seed)
+        rng = random.Random(shuffle_seed)
+        rng.shuffle(blind_pairs)
 
-    random.shuffle(responses)
-
-    # ---------------------------------------------------------
-    # Build blind response objects
-    # ---------------------------------------------------------
-
-    blind_responses = []
-
-    for r in responses:
-
-        existing_coding = coding_lookup.get(r["id"])
-
-        blind_item = {
-            "id": r["id"],
-            "experiment_id": r.get("experiment_id"),
-            "scenario_id": r.get("scenario_id"),
-            "model": r.get("model"),
-            "replicate_number": r.get("replicate_number"),
-            "generated_response": r.get("generated_response"),
-            "user_prompt": r.get("user_prompt"),
-
-            # Only this coder's coding is returned
-            "codings": existing_coding,
-        }
-
-        blind_responses.append(blind_item)
-
-    total = len(blind_responses)
-
-    coded = sum(
-        1
-        for item in blind_responses
-        if item["codings"] is not None
-    )
+    total = len(blind_pairs)
+    coded = sum(1 for p in blind_pairs if p["is_coded"])
 
     return {
         "total": total,
         "coded": coded,
         "remaining": total - coded,
         "coder_id": coder_id,
-        "data": blind_responses,
+        "data": blind_pairs,
     }
 
 

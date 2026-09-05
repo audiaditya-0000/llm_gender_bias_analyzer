@@ -13,10 +13,11 @@ import type {
   Experiment,
   ExperimentCreate,
   PaginatedResponses,
+  PaginatedPairs,
   ExperimentResponseItem,
   CodingCreate,
   CodingEntry,
-  BlindResponsesResult,
+  BlindPairsResult,
   AnalysisSummary,
   OllamaModel,
   WordPair,
@@ -277,6 +278,37 @@ export const responsesApi = {
     );
   },
 
+  listPairs: (params?: {
+    experiment_id?: string;
+    search?: string;
+    limit?: number;
+    offset?: number;
+  }) => {
+    const searchParams = new URLSearchParams();
+
+    if (params?.experiment_id) {
+      searchParams.set("experiment_id", params.experiment_id);
+    }
+
+    if (params?.search) {
+      searchParams.set("search", params.search);
+    }
+
+    if (params?.limit !== undefined) {
+      searchParams.set("limit", String(params.limit));
+    }
+
+    if (params?.offset !== undefined) {
+      searchParams.set("offset", String(params.offset));
+    }
+
+    const qs = searchParams.toString();
+
+    return request<PaginatedPairs>(
+      `/responses/pairs${qs ? `?${qs}` : ""}`
+    );
+  },
+
   get: (id: string) =>
     request<ExperimentResponseItem>(
       `/responses/${id}`
@@ -322,7 +354,7 @@ export const codingApi = {
   },
 
   /**
-   * Get blinded responses.
+   * Get blinded response pairs.
    *
    * Gender condition labels are hidden by the backend.
    * If coder_id is provided, only that coder's
@@ -361,7 +393,7 @@ export const codingApi = {
 
     const qs = searchParams.toString();
 
-    return request<BlindResponsesResult>(
+    return request<BlindPairsResult>(
       `/coding/blind${qs ? `?${qs}` : ""}`
     );
   },

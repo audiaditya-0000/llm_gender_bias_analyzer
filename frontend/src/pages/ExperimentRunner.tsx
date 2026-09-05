@@ -130,7 +130,7 @@ export default function ExperimentRunner() {
                     <div className="text-sm text-surface-400 space-y-1">
                       <div>Scaffold: {scaffold?.name || "Unknown"}</div>
                       <div>
-                        Conditions: 2 (Male/Female NPC) × {exp.num_replicates} replicates = {exp.num_replicates * 2} total calls
+                        Conditions: 2 (Original / Swapped) × {exp.num_replicates} replicates = {exp.num_replicates * 2} total calls
                       </div>
                     </div>
                   </div>

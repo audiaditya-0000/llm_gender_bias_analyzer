@@ -20,7 +20,6 @@ export default function ExperimentConfig() {
     max_tokens: 512,
     seed: 42,
     num_replicates: 20,
-    swap_type: "npc",
   });
 
   const [seedEnabled, setSeedEnabled] = useState(true);
@@ -208,19 +207,6 @@ export default function ExperimentConfig() {
                 )}
               </div>
 
-              {/* Swap Type */}
-              <div>
-                <label className="input-label">Counterfactual Swap Type</label>
-                <select
-                  className="input-field"
-                  value={form.swap_type}
-                  onChange={(e) => setForm({ ...form, swap_type: e.target.value })}
-                >
-                  <option value="npc">NPC (male_npc / female_npc)</option>
-                  <option value="player">Player (male_player / female_player)</option>
-                  <option value="third_person">Third Person (male_third_person / female_third_person)</option>
-                </select>
-              </div>
 
               {/* Replicates */}
               <div>

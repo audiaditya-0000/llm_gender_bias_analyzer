@@ -10,18 +10,24 @@ OLLAMA_BASE_URL = "http://localhost:11434"
 
 
 async def generate(
-    system_prompt: str,
-    user_prompt: str,
-    model: str,
+    scaffold: str = "",
+    scenario: str = "",
+    model: str = "",
     temperature: float = 0.7,
     top_p: float = 0.9,
     max_tokens: int = 512,
     seed: Optional[int] = None,
+    system_prompt: Optional[str] = None,
+    user_prompt: Optional[str] = None,
 ) -> str:
     """
     Generate a response from an Ollama model using the /api/chat endpoint.
+    Accepts scaffold (system instruction) and scenario (user input).
     Returns the assistant's message content as a string.
     """
+    sys_content = system_prompt if system_prompt is not None else scaffold
+    usr_content = user_prompt if user_prompt is not None else scenario
+
     options: dict[str, Any] = {
         "temperature": temperature,
         "top_p": top_p,
@@ -30,12 +36,15 @@ async def generate(
     if seed is not None:
         options["seed"] = seed
 
+    messages = []
+    if sys_content:
+        messages.append({"role": "system", "content": sys_content})
+    if usr_content:
+        messages.append({"role": "user", "content": usr_content})
+
     payload = {
         "model": model,
-        "messages": [
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": user_prompt},
-        ],
+        "messages": messages,
         "stream": False,
         "options": options,
     }

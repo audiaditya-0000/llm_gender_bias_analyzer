@@ -11,15 +11,9 @@ import {
 import { counterfactualApi } from "../api/client";
 import type { CounterfactualResponse, WordPair } from "../types";
 
-const SWAP_TYPES = [
-  { value: "npc", label: "Male NPC ↔ Female NPC" },
-  { value: "player", label: "Male Player ↔ Female Player" },
-  { value: "third_person", label: "Male Third Person ↔ Female Third Person" },
-] as const;
 
 export default function CounterfactualGenerator() {
   const [prompt, setPrompt] = useState("");
-  const [swapType, setSwapType] = useState<"npc" | "player" | "third_person">("npc");
   const [result, setResult] = useState<CounterfactualResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [copiedMale, setCopiedMale] = useState(false);
@@ -45,7 +39,7 @@ export default function CounterfactualGenerator() {
     if (!prompt.trim()) return;
     try {
       setLoading(true);
-      const data = await counterfactualApi.generate({ prompt, swap_type: swapType });
+      const data = await counterfactualApi.generate({ prompt });
       setResult(data);
     } catch (err) {
       console.error("Failed to generate:", err);
@@ -166,24 +160,6 @@ export default function CounterfactualGenerator() {
 
       {/* Input Section */}
       <div className="glass-card-static p-6 mb-6">
-        <div className="mb-4">
-          <label className="input-label">Swap Type</label>
-          <div className="flex gap-3 flex-wrap">
-            {SWAP_TYPES.map(({ value, label }) => (
-              <button
-                key={value}
-                className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
-                  swapType === value
-                    ? "gradient-accent text-white shadow-lg shadow-accent-500/20"
-                    : "bg-surface-700/50 text-surface-300 hover:bg-surface-700"
-                }`}
-                onClick={() => setSwapType(value)}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
-        </div>
 
         <div className="mb-4">
           <label className="input-label">Base Prompt</label>
