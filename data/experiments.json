@@ -1,1 +1,72 @@
-[]
+[
+  {
+    "id": "f682c292-748e-4090-a760-da33aadd797a",
+    "scenario_id": "74ea8c66-f108-4054-8a1e-a6f9b1ffae62",
+    "scaffold_id": "a9714fe2-ca9f-4d86-bf87-4c1046319718",
+    "model": "llama3.2:latest",
+    "temperature": 0.7,
+    "top_p": 0.9,
+    "max_tokens": 512,
+    "seed": 42,
+    "num_replicates": 5,
+    "swap_type": "npc",
+    "status": "completed",
+    "created_at": "2026-09-06T09:43:39.849228"
+  },
+  {
+    "id": "1fa86a4d-b7dd-424f-a6fc-3abaa213b6ca",
+    "scenario_id": "74ea8c66-f108-4054-8a1e-a6f9b1ffae62",
+    "scaffold_id": "72859fca-c908-4f0d-9099-7dd4ee53b839",
+    "model": "llama3.2:latest",
+    "temperature": 0.7,
+    "top_p": 0.9,
+    "max_tokens": 512,
+    "seed": 42,
+    "num_replicates": 5,
+    "swap_type": "npc",
+    "status": "completed",
+    "created_at": "2026-09-06T12:57:15.549949"
+  },
+  {
+    "id": "171f9126-9d0b-43ca-9577-428bdf5d5fcf",
+    "scenario_id": "74ea8c66-f108-4054-8a1e-a6f9b1ffae62",
+    "scaffold_id": "ad07cd93-7943-49be-8b36-849e882ffd7b",
+    "model": "llama3.2:latest",
+    "temperature": 0.7,
+    "top_p": 0.9,
+    "max_tokens": 512,
+    "seed": 42,
+    "num_replicates": 5,
+    "swap_type": "npc",
+    "status": "completed",
+    "created_at": "2026-09-06T12:57:30.953096"
+  },
+  {
+    "id": "3bf24504-ed45-420b-924c-b0a463f7cc64",
+    "scenario_id": "74ea8c66-f108-4054-8a1e-a6f9b1ffae62",
+    "scaffold_id": "a9714fe2-ca9f-4d86-bf87-4c1046319718",
+    "model": "mistral:latest",
+    "temperature": 0.7,
+    "top_p": 0.9,
+    "max_tokens": 512,
+    "seed": 42,
+    "num_replicates": 5,
+    "swap_type": "npc",
+    "status": "completed",
+    "created_at": "2026-09-06T12:57:53.813297"
+  },
+  {
+    "id": "e5ba8ffe-0d0c-44fc-b32a-d62cf4e4b4e8",
+    "scenario_id": "74ea8c66-f108-4054-8a1e-a6f9b1ffae62",
+    "scaffold_id": "72859fca-c908-4f0d-9099-7dd4ee53b839",
+    "model": "mistral:latest",
+    "temperature": 0.7,
+    "top_p": 0.9,
+    "max_tokens": 512,
+    "seed": 42,
+    "num_replicates": 1,
+    "swap_type": "npc",
+    "status": "completed",
+    "created_at": "2026-09-06T14:52:40.087392"
+  }
+]
