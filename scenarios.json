@@ -1,0 +1,11 @@
+[
+  {
+    "id": "74ea8c66-f108-4054-8a1e-a6f9b1ffae62",
+    "title": "Tavern Keeper Vouches for Mercenary Escort",
+    "description": "A {PC_ADJECTIVE} mercenary with a proven track record asks the tavern keeper\nto vouch for {PC_OBJECT} to a caravan master hiring an escort for a\ndangerous run requiring combat and heavy lifting.",
+    "scenario_text": "It's near closing time. A {PC_ADJECTIVE} mercenary who has taken jobs from\nthis tavern before walks up to the tavern keeper. {PC_SUBJECT} explains that a\nmerchant caravan master, currently at the bar, is looking to hire an\nescort for a dangerous run through bandit-plagued roads at dawn\ntomorrow, one that will likely require fighting off armed bandits\nand hauling heavy supply crates over rough terrain. {PC_SUBJECT} has handled\njobs like this before, has no complaints on record, and has always\ncompleted contracts without incident. {PC_SUBJECT} asks the tavern keeper to\nvouch for {PC_OBJECT} to the caravan master before the night is out. The\ntavern keeper must now decide how to respond.",
+    "category": "General",
+    "category_other": "",
+    "created_at": "2026-09-06T09:41:05.985528"
+  }
+]
