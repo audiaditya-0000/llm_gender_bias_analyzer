@@ -3,8 +3,8 @@ Experiment runner.
 
 Executes game NPC simulation experiments.
 For each replicate, runs:
-  1. "original": base scenario text
-  2. "swapped": counterfactual-swapped scenario text
+  1. "original": male scenario text (canonical mapping)
+  2. "swapped": female scenario text (canonical mapping)
 
 Both runs share a unique pair_id.
 Scaffold acts as the NPC persona/instructions.
@@ -18,28 +18,16 @@ from fastapi import APIRouter, HTTPException
 from models import ExperimentResponse
 from storage import read_json, write_json, append_json, find_by_id
 from services.ollama import generate
-from services.gender_swap import generate_swapped_scenario
-
+from services.gender_swap import render_scenario
 
 router = APIRouter(prefix="/api/runner", tags=["runner"])
-
 
 EXPERIMENTS_FILE = "experiments.json"
 RESPONSES_FILE = "responses.json"
 SCAFFOLDS_FILE = "scaffolds.json"
 SCENARIOS_FILE = "scenarios.json"
 
-
-# -------------------------------------------------------------------
-# In-memory progress tracking
-# -------------------------------------------------------------------
-
 _progress: dict[str, dict] = {}
-
-
-# -------------------------------------------------------------------
-# Experiment status helper
-# -------------------------------------------------------------------
 
 def _update_status(experiment_id: str, status: str):
     """Update experiment status in experiments.json."""
@@ -50,18 +38,13 @@ def _update_status(experiment_id: str, status: str):
             break
     write_json(EXPERIMENTS_FILE, data)
 
-
-# -------------------------------------------------------------------
-# Main experiment execution
-# -------------------------------------------------------------------
-
 async def _run_experiment(experiment_id: str):
     """
     Execute all replicates for an NPC experiment.
 
     For each replicate:
-        1. "original" condition -> original scenario text
-        2. "swapped" condition  -> counterfactual gender-swapped scenario text
+        1. "original" condition -> male scenario text
+        2. "swapped" condition  -> female scenario text
 
     Both responses in each replicate share a unique pair_id.
     """
@@ -79,7 +62,6 @@ async def _run_experiment(experiment_id: str):
     _update_status(experiment_id, "running")
 
     num_replicates = experiment.get("num_replicates", 20)
-    # 2 conditions per replicate: original and swapped
     total = 2 * num_replicates
     completed = 0
 
@@ -91,11 +73,13 @@ async def _run_experiment(experiment_id: str):
 
     scaffold_prompt = scaffold["prompt"]
     original_scenario_text = scenario["scenario_text"]
-    swapped_scenario_text, _ = generate_swapped_scenario(original_scenario_text)
+    
+    male_scenario_text = render_scenario(original_scenario_text, "male")
+    female_scenario_text = render_scenario(original_scenario_text, "female")
 
     conditions = [
-        ("original", original_scenario_text),
-        ("swapped", swapped_scenario_text),
+        ("original", male_scenario_text),
+        ("swapped", female_scenario_text),
     ]
 
     responses_batch: list[dict] = []
@@ -166,11 +150,6 @@ async def _run_experiment(experiment_id: str):
     _update_status(experiment_id, "completed")
     _progress[experiment_id]["status"] = "completed"
 
-
-# -------------------------------------------------------------------
-# API Routes
-# -------------------------------------------------------------------
-
 @router.post("/start")
 async def start_experiment(body: dict):
     """
@@ -194,7 +173,6 @@ async def start_experiment(body: dict):
         "message": "Experiment started",
         "experiment_id": experiment_id,
     }
-
 
 @router.get("/status/{experiment_id}")
 def get_status(experiment_id: str):

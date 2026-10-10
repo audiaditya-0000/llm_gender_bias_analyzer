@@ -14,30 +14,25 @@ router = APIRouter(prefix="/api/counterfactual", tags=["counterfactual"])
 from services.gender_swap import (
     BUILTIN_WORD_PAIRS,
     CUSTOM_PAIRS_FILE,
-    swap_gendered_terms,
+    render_scenario
 )
 
 
 def _generate_pair(base_prompt: str) -> tuple[str, str, list[dict]]:
     """
-    Generate a male/female prompt pair from a base prompt.
-    The base prompt is treated as gender-neutral; we produce both gendered versions.
+    Generate a male/female prompt pair from a base template prompt.
+    Returns male_prompt, female_prompt, and an empty swaps list (since we use explicit tokens now).
     """
-    male_prompt, male_swaps = swap_gendered_terms(base_prompt, "to_male")
-    female_prompt, female_swaps = swap_gendered_terms(base_prompt, "to_female")
+    male_prompt = render_scenario(base_prompt, "male")
+    female_prompt = render_scenario(base_prompt, "female")
 
-    # If no swaps happened in either direction, the prompt may already be gendered.
-    # In that case, treat the base as one version and swap to get the other.
-    all_swaps = male_swaps + female_swaps
-
-    if not male_swaps and not female_swaps:
-        # No gendered terms found at all — return the original as both
-        return base_prompt, base_prompt, []
-
-    return male_prompt, female_prompt, all_swaps
+    # Swaps made are no longer tracked at a granular level since it's deterministic tokens
+    return male_prompt, female_prompt, []
 
 
-# ── Routes ────────────────────────────────────────────────────────────────────
+# -------------------------------------------------------------------
+# Routes
+# -------------------------------------------------------------------
 
 
 @router.post("/generate")
@@ -52,7 +47,9 @@ def generate_counterfactual(payload: CounterfactualRequest):
     ).model_dump()
 
 
-# ── Custom Word Pairs Management ──────────────────────────────────────────────
+# -------------------------------------------------------------------
+# Custom Word Pairs Management (Legacy/No-op but kept for UI compatibility)
+# -------------------------------------------------------------------
 
 
 @router.get("/word-pairs")
@@ -62,9 +59,12 @@ def list_word_pairs():
         {"male_term": m, "female_term": f, "builtin": True}
         for m, f in BUILTIN_WORD_PAIRS
     ]
-    custom = read_json(CUSTOM_PAIRS_FILE)
-    for entry in custom:
-        entry["builtin"] = False
+    try:
+        custom = read_json(CUSTOM_PAIRS_FILE)
+        for entry in custom:
+            entry["builtin"] = False
+    except FileNotFoundError:
+        custom = []
     return builtin + custom
 
 
@@ -72,7 +72,10 @@ def list_word_pairs():
 def add_word_pair(payload: WordPairCreate):
     """Add a custom word pair."""
     pair = WordPair(**payload.model_dump())
-    data = read_json(CUSTOM_PAIRS_FILE)
+    try:
+        data = read_json(CUSTOM_PAIRS_FILE)
+    except FileNotFoundError:
+        data = []
     data.append(pair.model_dump())
     write_json(CUSTOM_PAIRS_FILE, data)
     return pair.model_dump()
@@ -84,3 +87,4 @@ def remove_word_pair(pair_id: str):
     if not delete_by_id(CUSTOM_PAIRS_FILE, pair_id):
         raise HTTPException(status_code=404, detail="Custom word pair not found")
     return {"deleted": True}
+

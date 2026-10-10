@@ -1,110 +1,106 @@
 """
-Shared gender-swap utility.
+Shared gender-swap utility using explicit PC tokens.
 
-Used by both the counterfactual generator and the experiment runner
-so that the same word-pair list and swap logic is applied consistently.
+Tokens:
+{PC_NOUN}
+{PC_SUBJECT}
+{PC_OBJECT}
+{PC_POSSESSIVE}
+{PC_REFLEXIVE}
 """
 
 import re
-from storage import read_json
 
-# ── Built-in gendered word pairs ──────────────────────────────────────────────
-# Each tuple is (male_form, female_form)
-BUILTIN_WORD_PAIRS: list[tuple[str, str]] = [
-    # Pronouns
-    ("he", "she"),
-    ("him", "her"),
-    ("his", "hers"),
-    ("himself", "herself"),
-    # Common nouns
-    ("man", "woman"),
-    ("male", "female"),
-    ("boy", "girl"),
-    # Family
-    ("father", "mother"),
-    ("son", "daughter"),
-    ("brother", "sister"),
-    ("husband", "wife"),
-    # Titles
-    ("king", "queen"),
-    ("prince", "princess"),
-    ("sir", "madam"),
-    ("mr", "mrs"),
-    ("actor", "actress"),
-    # Domain-specific defaults
-    ("emperor", "empress"),
-    ("lord", "lady"),
-    ("duke", "duchess"),
-    ("wizard", "witch"),
-    ("monk", "nun"),
-    ("salesman", "saleswoman"),
-    ("hero", "heroine"),
-    ("waiter", "waitress"),
-    ("god", "goddess"),
-    ("bachelor", "bachelorette"),
-]
-
+# Kept for backward compatibility with existing UI routes
+BUILTIN_WORD_PAIRS: list[tuple[str, str]] = []
 CUSTOM_PAIRS_FILE = "custom_word_pairs.json"
 
+PC_FORMS = {
+    "male": {
+        "NOUN": "man",
+        "SUBJECT": "he",
+        "OBJECT": "him",
+        "POSSESSIVE": "his",
+        "REFLEXIVE": "himself",
+        "ADJECTIVE": "male",
+    },
+    "female": {
+        "NOUN": "woman",
+        "SUBJECT": "she",
+        "OBJECT": "her",
+        "POSSESSIVE": "her",
+        "REFLEXIVE": "herself",
+        "ADJECTIVE": "female",
+    },
+}
 
-def get_all_pairs() -> list[tuple[str, str]]:
-    """Merge built-in pairs with any user-configured custom pairs."""
-    pairs = list(BUILTIN_WORD_PAIRS)
-    custom = read_json(CUSTOM_PAIRS_FILE)
-    for entry in custom:
-        pairs.append((entry["male_term"].lower(), entry["female_term"].lower()))
-    return pairs
-
-
-def swap_gendered_terms(text: str, direction: str) -> tuple[str, list[dict]]:
+def render_scenario(text: str, gender: str) -> str:
     """
-    Swap gendered terms in the given text.
-
-    direction: "to_male" or "to_female"
-
-    Returns (swapped_text, list_of_swaps_made).
+    Renders a scenario template for the specified PC gender.
+    Replaces explicit PC tokens with their gendered forms.
+    Leaves all other text unchanged.
     """
-    pairs = get_all_pairs()
-    swaps_made: list[dict] = []
+    if gender not in PC_FORMS:
+        raise ValueError(f"Invalid gender: {gender}")
+
+    forms = PC_FORMS[gender]
     result = text
 
-    for male_form, female_form in pairs:
-        if direction == "to_male":
-            source, target = female_form, male_form
-        else:
-            source, target = male_form, female_form
+    for token, value in forms.items():
+        placeholder = f"{{PC_{token}}}"
+        
+        # We need to replace the placeholder but capitalize if it's at the start of a sentence.
+        # A sentence start is: beginning of string, or after a '.', '!', '?' followed by whitespace.
+        # Also after a newline.
+        
+        def repl(match):
+            prefix = match.group(1)
+            # If prefix ends with sentence-ending punctuation + whitespace, or is just whitespace
+            # and there's no other text before it (which we can't fully check with just a lookbehind
+            # if it's variable length, but we can capture the preceding chars).
+            # Actually, regex is easier:
+            return prefix + value
 
-        # Case-sensitive replacements: lowercase, Capitalized, UPPERCASE
-        for src, tgt in [
-            (source, target),
-            (source.capitalize(), target.capitalize()),
-            (source.upper(), target.upper()),
-        ]:
-            pattern = re.compile(r"\b" + re.escape(src) + r"\b")
-            matches = pattern.findall(result)
-            if matches:
-                result = pattern.sub(tgt, result)
-                swaps_made.append(
-                    {"original": src, "replaced_with": tgt, "count": len(matches)}
-                )
+        # Let's just do an iterative search and replace to handle capitalization properly.
+        # Or we can just use a regex for the placeholder and check the index.
+        pass
 
-    return result, swaps_made
+    # Better approach:
+    # Find all {PC_...} tokens and replace them one by one.
+    # If the token is the very first thing, or if the last non-whitespace character before it is . ! or ?, capitalize it.
+    
+    # We will do a regex sub with a function
+    def replacer(match):
+        full_string = match.string
+        start_idx = match.start()
+        token_name = match.group(1)
+        
+        if token_name not in forms:
+            return match.group(0) # Not a recognized token, don't replace
+            
+        replacement = forms[token_name]
+        
+        # Check if we should capitalize
+        # Walk backwards from start_idx to find the first non-whitespace char
+        should_capitalize = False
+        i = start_idx - 1
+        while i >= 0 and full_string[i] in ' \t\n\r':
+            if full_string[i] == '\n':
+                # Newline is a strong indicator of a new sentence in these prompts
+                should_capitalize = True
+                break
+            i -= 1
+            
+        if i < 0:
+            should_capitalize = True
+        elif not should_capitalize and full_string[i] in '.!?':
+            should_capitalize = True
+            
+        if should_capitalize:
+            return replacement.capitalize()
+        return replacement
 
+    result = re.sub(r'\{PC_([A-Z]+)\}', replacer, result)
 
-def generate_swapped_scenario(base_text: str) -> tuple[str, list[dict]]:
-    """
-    Produce a gender-swapped version of a scenario text.
+    return result
 
-    Attempts to swap to female first; if no female terms exist,
-    swaps to male. Returns (swapped_text, swaps_made).
-    """
-    female_text, female_swaps = swap_gendered_terms(base_text, "to_female")
-    if female_swaps:
-        return female_text, female_swaps
-
-    male_text, male_swaps = swap_gendered_terms(base_text, "to_male")
-    if male_swaps:
-        return male_text, male_swaps
-
-    # No gendered terms found — return original unchanged
-    return base_text, []

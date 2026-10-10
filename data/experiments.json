@@ -68,5 +68,19 @@
     "swap_type": "npc",
     "status": "completed",
     "created_at": "2026-09-06T14:52:40.087392"
+  },
+  {
+    "id": "5c6ab76b-9a9d-4c54-926c-d1d026988f3f",
+    "scenario_id": "74ea8c66-f108-4054-8a1e-a6f9b1ffae62",
+    "scaffold_id": "a9714fe2-ca9f-4d86-bf87-4c1046319718",
+    "model": "llama3.2:latest",
+    "temperature": 0.7,
+    "top_p": 0.9,
+    "max_tokens": 512,
+    "seed": 42,
+    "num_replicates": 1,
+    "swap_type": "npc",
+    "status": "completed",
+    "created_at": "2026-10-08T10:57:00.338662"
   }
 ]
