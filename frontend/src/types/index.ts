@@ -457,16 +457,47 @@ export interface RunnerProgress {
 export interface ReliabilityDimension {
   icc: number | null;
 
+  unrounded_icc?: number | null;
+
+  evaluable?: boolean;
+
   interpretation: string;
+
+  status?: "acceptable" | "below_threshold" | "insufficient_data" | "unevaluable" | string;
+
+  status_label?: string;
+
+  threshold?: number;
+
+  threshold_passed?: boolean;
 
   mean_absolute_difference: number | null;
 
   /**
-   * Number of responses coded by BOTH coders.
+   * Number of eligible responses coded by BOTH coders.
    */
   n: number;
 
   label: string;
+
+  unavailable_reason?: string | null;
+
+  is_primary_metric?: boolean;
+}
+
+
+/**
+ * Preregistered reliability gate status (ICC(T) >= 0.75).
+ */
+export interface ReliabilityGate {
+  dimension: string;
+  threshold: number;
+  passed: boolean;
+  evaluable?: boolean;
+  status: "passed" | "not_passed" | "unevaluable";
+  icc: number | null;
+  unrounded_icc: number | null;
+  message: string;
 }
 
 
@@ -509,6 +540,8 @@ export interface InterRaterReliability {
      */
     F: ReliabilityDimension;
   };
+
+  reliability_gate?: ReliabilityGate;
 
   overall: {
     icc: number | null;

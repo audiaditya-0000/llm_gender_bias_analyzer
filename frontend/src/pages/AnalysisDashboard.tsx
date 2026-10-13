@@ -498,19 +498,18 @@ export default function AnalysisDashboard() {
     }
 
 
-    /* RELIABILITY NOT AVAILABLE */
+    /* PREREGISTERED RELIABILITY GATE: ICC(T) >= 0.75 */
+    const tDim = reliability?.dimensions?.T;
+    const gate = reliability?.reliability_gate;
 
-    if (
-      !reliability ||
-      reliability.total_shared_responses < 2 ||
-      reliability.overall.icc === null
-    ) {
+    if (!reliability || !tDim || tDim.icc === null || (tDim.evaluable === false) || gate?.status === "unevaluable") {
 
       return {
-        status: "Reliability Pending",
+        status: "Reliability Gate Unevaluable",
 
         message:
-          "Coding coverage is available, but additional independently shared coding is required to assess inter-coder reliability.",
+          gate?.message ||
+          "Coding coverage is available, but additional independently shared coding is required to evaluate the ICC(T) reliability gate before inferential analysis.",
 
         color: "text-yellow-400",
       };
@@ -518,15 +517,17 @@ export default function AnalysisDashboard() {
     }
 
 
-    /* POOR AGREEMENT */
+    /* GATE NOT PASSED (unrounded check) */
+    const isGatePassed = gate ? gate.passed : (tDim.threshold_passed ?? (tDim.unrounded_icc !== null && tDim.unrounded_icc !== undefined ? tDim.unrounded_icc >= 0.75 : false));
 
-    if (reliability.overall.icc < 0.5) {
+    if (!isGatePassed) {
 
       return {
-        status: "Review Recommended",
+        status: "Reliability Gate Not Passed",
 
         message:
-          "Inter-coder agreement is currently low. Review the coding guidelines and reconcile disagreements before reporting final conclusions.",
+          gate?.message ||
+          `ICC(T) (${tDim.icc.toFixed(4)}) is below the preregistered 0.75 threshold required for inferential analysis. Review coding guidelines and reconcile disagreements.`,
 
         color: "text-rose-400",
       };
@@ -534,31 +535,16 @@ export default function AnalysisDashboard() {
     }
 
 
-    /* MODERATE AGREEMENT */
+    /* GATE PASSED */
 
-    if (reliability.overall.icc < 0.75) {
-
-      return {
-        status: "Preliminary Results",
-
-        message:
-          "Coding demonstrates moderate agreement. Results may be used for exploratory analysis while further coding improves reliability.",
-
-        color: "text-yellow-400",
-      };
-
-    }
-
-
-    /* GOOD AGREEMENT */
-
-    if (reliability.overall.icc < 0.9) {
+    if (tDim.icc < 0.9) {
 
       return {
-        status: "Research Ready",
+        status: "Reliability Gate Passed",
 
         message:
-          "The dataset has sufficient coding coverage and good inter-coder agreement for research analysis.",
+          gate?.message ||
+          `ICC(T) (${tDim.icc.toFixed(4)}) meets the preregistered reliability threshold (>= 0.75) for inferential analysis.`,
 
         color: "text-green-400",
       };
@@ -566,14 +552,15 @@ export default function AnalysisDashboard() {
     }
 
 
-    /* EXCELLENT AGREEMENT */
+    /* HIGH RELIABILITY */
 
     return {
 
-      status: "High Research Confidence",
+      status: "High Reliability Confirmed",
 
       message:
-        "The dataset demonstrates sufficient coding coverage and excellent inter-coder agreement.",
+        gate?.message ||
+        `ICC(T) (${tDim.icc.toFixed(4)}) demonstrates high reliability meeting the preregistered threshold. Note that passing the threshold indicates acceptable agreement for research analysis but does not imply perfect agreement across coders.`,
 
       color: "text-emerald-400",
     };
@@ -592,15 +579,24 @@ export default function AnalysisDashboard() {
     switch (interpretation) {
 
       case "Excellent":
+      case "Acceptable":
+      case "acceptable":
+      case "passed":
         return "text-emerald-400";
 
       case "Good":
         return "text-green-400";
 
       case "Moderate":
+      case "Insufficient data":
+      case "insufficient_data":
+      case "unevaluable":
         return "text-yellow-400";
 
       case "Poor":
+      case "Below threshold":
+      case "below_threshold":
+      case "not_passed":
         return "text-rose-400";
 
       default:
@@ -620,7 +616,10 @@ export default function AnalysisDashboard() {
 
     if (
       interpretation === "Excellent" ||
-      interpretation === "Good"
+      interpretation === "Good" ||
+      interpretation === "Acceptable" ||
+      interpretation === "acceptable" ||
+      interpretation === "passed"
     ) {
 
       return (
@@ -634,8 +633,27 @@ export default function AnalysisDashboard() {
 
 
     if (
+      interpretation === "Poor" ||
+      interpretation === "Below threshold" ||
+      interpretation === "below_threshold" ||
+      interpretation === "not_passed"
+    ) {
+
+      return (
+        <AlertTriangle
+          size={18}
+          className="text-rose-400"
+        />
+      );
+
+    }
+
+
+    if (
       interpretation === "Moderate" ||
-      interpretation === "Poor"
+      interpretation === "Insufficient data" ||
+      interpretation === "insufficient_data" ||
+      interpretation === "unevaluable"
     ) {
 
       return (
@@ -1032,16 +1050,21 @@ export default function AnalysisDashboard() {
                   <div>
 
                     <div className="text-xs text-surface-500">
-                      Overall ICC
+                      Primary Gate: ICC(T)
                     </div>
 
 
-                    <div className="font-semibold text-surface-200">
+                    <div className={`font-semibold ${
+                      !reliability || !reliability.dimensions?.T || reliability.dimensions.T.icc === null || reliability.dimensions.T.evaluable === false
+                        ? "text-surface-400"
+                        : reliability.dimensions.T.threshold_passed
+                        ? "text-emerald-400"
+                        : "text-rose-400"
+                    }`}>
 
-                      {!reliability ||
-                      reliability.overall.icc === null
-                        ? "N/A"
-                        : reliability.overall.icc.toFixed(3)}
+                      {!reliability || !reliability.dimensions?.T || reliability.dimensions.T.icc === null || reliability.dimensions.T.evaluable === false
+                        ? "Unevaluable"
+                        : `${reliability.dimensions.T.icc.toFixed(4)} (${reliability.dimensions.T.threshold_passed ? "Passed" : "Below Gate"})`}
 
                     </div>
 
@@ -1171,9 +1194,9 @@ export default function AnalysisDashboard() {
           <>
 
 
-            {/* SHARED RESPONSE + OVERALL ICC */}
+            {/* SUMMARY CARDS: SHARED RESPONSES, PRIMARY GATE ICC(T), OVERALL REFERENCE */}
 
-            <div className="grid sm:grid-cols-2 gap-4 mb-6">
+            <div className="grid sm:grid-cols-3 gap-4 mb-6">
 
 
               <div className="bg-surface-900/40 rounded-lg p-4">
@@ -1199,14 +1222,62 @@ export default function AnalysisDashboard() {
               </div>
 
 
-              {/* OVERALL ICC */}
+              {/* PRIMARY RELIABILITY GATE: ICC(T) */}
+
+              <div className="bg-surface-900/40 rounded-lg p-4 border border-surface-700/30">
+
+                <div className="flex items-center justify-between mb-2">
+
+                  <div className="text-xs text-surface-400 uppercase tracking-wider font-semibold">
+                    Primary Gate: ICC(T)
+                  </div>
+
+
+                  {getReliabilityIcon(
+                    reliability.reliability_gate?.status || "unevaluable"
+                  )}
+
+                </div>
+
+
+                <div
+                  className={`text-3xl font-bold ${getReliabilityColor(
+                    reliability.reliability_gate?.status || "unevaluable"
+                  )}`}
+                >
+
+                  {reliability.dimensions.T.icc === null
+                    ? "N/A"
+                    : reliability.dimensions.T.icc.toFixed(4)}
+
+                </div>
+
+
+                <p
+                  className={`text-xs mt-2 font-medium ${getReliabilityColor(
+                    reliability.reliability_gate?.status || "unevaluable"
+                  )}`}
+                >
+
+                  {reliability.reliability_gate?.status === "passed"
+                    ? "Gate Passed (>= 0.75)"
+                    : reliability.reliability_gate?.status === "not_passed"
+                    ? "Gate Not Passed (< 0.75)"
+                    : "Gate Unevaluable"}
+
+                </p>
+
+              </div>
+
+
+              {/* OVERALL REFERENCE AGREEMENT */}
 
               <div className="bg-surface-900/40 rounded-lg p-4">
 
                 <div className="flex items-center justify-between mb-2">
 
                   <div className="text-xs text-surface-500 uppercase tracking-wider">
-                    Overall Agreement
+                    Reference Composite
                   </div>
 
 
@@ -1225,18 +1296,18 @@ export default function AnalysisDashboard() {
 
                   {reliability.overall.icc === null
                     ? "N/A"
-                    : reliability.overall.icc.toFixed(3)}
+                    : reliability.overall.icc.toFixed(4)}
 
                 </div>
 
 
                 <p
-                  className={`text-sm mt-2 font-medium ${getReliabilityColor(
+                  className={`text-xs mt-2 font-medium ${getReliabilityColor(
                     reliability.overall.interpretation
                   )}`}
                 >
 
-                  {reliability.overall.interpretation}
+                  {reliability.overall.interpretation} (Reference)
 
                 </p>
 
@@ -1245,7 +1316,7 @@ export default function AnalysisDashboard() {
             </div>
 
 
-            {/* INSUFFICIENT DATA */}
+            {/* INSUFFICIENT DATA BANNER */}
 
             {reliability.total_shared_responses < 2 && (
 
@@ -1291,18 +1362,21 @@ export default function AnalysisDashboard() {
                 {
                   key: "T",
                   title: "Stereotype / Disadvantage",
+                  badge: "PRIMARY GATE",
                   data: reliability.dimensions.T,
                 },
 
                 {
                   key: "I",
                   title: "Ambiguity / Context",
+                  badge: "PRIMARY METRIC",
                   data: reliability.dimensions.I,
                 },
 
                 {
                   key: "F",
                   title: "Neutral / Counter-stereotypical",
+                  badge: "PRIMARY METRIC",
                   data: reliability.dimensions.F,
                 },
 
@@ -1310,93 +1384,201 @@ export default function AnalysisDashboard() {
 
                 <div
                   key={dimension.key}
-                  className="glass-card p-5"
+                  className="glass-card p-5 flex flex-col justify-between"
                 >
 
-                  <div className="flex items-start justify-between gap-3 mb-4">
+                  <div>
 
-                    <div>
+                    <div className="flex items-start justify-between gap-3 mb-4">
 
-                      <div className="text-lg font-bold text-surface-100">
-                        {dimension.key}
+                      <div>
+
+                        <div className="flex items-center gap-2">
+
+                          <span className="text-lg font-bold text-surface-100">
+                            {dimension.key}
+                          </span>
+
+                          <span className={`text-[10px] font-semibold px-2 py-0.5 rounded ${
+                            dimension.key === "T"
+                              ? "bg-accent-500/20 text-accent-300 border border-accent-500/30"
+                              : "bg-surface-800 text-surface-400 border border-surface-700/50"
+                          }`}>
+                            {dimension.badge}
+                          </span>
+
+                          <span className={`text-[10px] font-semibold px-2 py-0.5 rounded ${
+                            (dimension.data.evaluable ?? (dimension.data.icc !== null))
+                              ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
+                              : "bg-yellow-500/10 text-yellow-400 border border-yellow-500/20"
+                          }`}>
+                            {(dimension.data.evaluable ?? (dimension.data.icc !== null))
+                              ? "Evaluable"
+                              : "Unevaluable"}
+                          </span>
+
+                        </div>
+
+
+                        <div className="text-xs text-surface-500 mt-1">
+                          {dimension.title}
+                        </div>
+
                       </div>
 
 
-                      <div className="text-xs text-surface-500 mt-1">
-                        {dimension.title}
+                      {getReliabilityIcon(
+                        dimension.data.status || dimension.data.interpretation
+                      )}
+
+                    </div>
+
+
+                    {/* PRIMARY METRIC: ICC(2,1) */}
+
+                    <div className="mb-4 bg-surface-900/30 p-3 rounded-lg border border-surface-700/20">
+
+                      <div className="flex items-center justify-between text-xs text-surface-400 mb-1">
+                        <span className="font-semibold text-surface-300">ICC (2,1)</span>
+                        <span className="text-[10px] uppercase tracking-wider text-accent-400 font-medium">Primary</span>
+                      </div>
+
+
+                      <div
+                        className={`text-2xl font-bold ${getReliabilityColor(
+                          dimension.data.status || dimension.data.interpretation
+                        )}`}
+                      >
+
+                        {dimension.data.icc === null
+                          ? "Unavailable"
+                          : dimension.data.icc.toFixed(4)}
+
+                      </div>
+
+
+                      <div className="flex items-center justify-between mt-1 text-xs">
+
+                        <span className={`font-semibold ${getReliabilityColor(
+                          dimension.data.status || dimension.data.interpretation
+                        )}`}>
+                          {dimension.data.status_label || (
+                            !(dimension.data.evaluable ?? (dimension.data.icc !== null))
+                              ? "Unevaluable"
+                              : dimension.data.threshold_passed
+                              ? "Acceptable"
+                              : "Below threshold"
+                          )}
+                        </span>
+
+                        <span className="text-surface-400">
+                          {dimension.data.interpretation}
+                        </span>
+
                       </div>
 
                     </div>
 
 
-                    {getReliabilityIcon(
-                      dimension.data.interpretation
+                    {/* SUPPLEMENTARY METRIC: MAD */}
+
+                    <div className="mb-4 p-3 rounded-lg bg-surface-900/20 border border-surface-800/40">
+
+                      <div className="flex items-center justify-between text-xs text-surface-500 mb-1">
+                        <span>MAD (Mean Absolute Diff)</span>
+                        <span className="text-[10px] uppercase tracking-wider text-surface-500">Supplementary</span>
+                      </div>
+
+
+                      <div className="text-lg font-semibold text-surface-200">
+
+                        {dimension.data.mean_absolute_difference === null
+                          ? "Unavailable"
+                          : dimension.data.mean_absolute_difference.toFixed(4)}
+
+                      </div>
+
+                      <div className="text-[11px] text-surface-500 mt-0.5">
+                        Supplementary agreement measure
+                      </div>
+
+                    </div>
+
+
+                    {/* INFORMATIVE UNAVAILABLE STATE */}
+
+                    {dimension.data.icc === null && (
+
+                      <div className="p-2.5 rounded bg-surface-900/60 border border-yellow-500/20 text-xs text-yellow-300/90 mb-3">
+
+                        <span className="font-semibold block mb-0.5">Unavailable:</span>
+                        {dimension.data.unavailable_reason ||
+                          "ICC(2,1) is undefined (requires at least 2 shared responses with non-zero variance)."}
+
+                      </div>
+
                     )}
 
                   </div>
 
 
-                  {/* ICC */}
+                  {/* FOOTER: SAMPLE COUNT & GATE INDICATOR */}
 
-                  <div className="mb-4">
+                  <div className="pt-3 border-t border-surface-700/40 text-xs">
 
-                    <div className="text-xs text-surface-500 mb-1">
-                      ICC (2,1)
+                    <div className="text-surface-400">
+                      Based on <strong className="text-surface-200">{dimension.data.n}</strong> eligible shared response
+                      {dimension.data.n !== 1 ? "s" : ""}
                     </div>
 
 
-                    <div
-                      className={`text-2xl font-bold ${getReliabilityColor(
-                        dimension.data.interpretation
-                      )}`}
-                    >
+                    {dimension.key === "T" ? (
 
-                      {dimension.data.icc === null
-                        ? "N/A"
-                        : dimension.data.icc.toFixed(3)}
+                      <div className="mt-2 flex items-center justify-between pt-2 border-t border-surface-800/60">
 
-                    </div>
+                        <span className="text-surface-400 font-medium">Gate (&gt;= 0.75):</span>
 
-                  </div>
+                        <span className={`font-semibold ${
+                          (reliability.reliability_gate ? reliability.reliability_gate.passed : dimension.data.threshold_passed)
+                            ? "text-emerald-400"
+                            : (reliability.reliability_gate ? reliability.reliability_gate.status === "not_passed" : (dimension.data.evaluable ?? (dimension.data.icc !== null)))
+                            ? "text-rose-400"
+                            : "text-yellow-400"
+                        }`}>
+                          {reliability.reliability_gate
+                            ? reliability.reliability_gate.status === "passed"
+                              ? "Passed"
+                              : reliability.reliability_gate.status === "not_passed"
+                              ? "Not Passed"
+                              : "Unevaluable"
+                            : dimension.data.threshold_passed
+                            ? "Passed"
+                            : (dimension.data.evaluable ?? (dimension.data.icc !== null))
+                            ? "Not Passed"
+                            : "Unevaluable"}
+                        </span>
 
+                      </div>
 
-                  {/* MAD */}
+                    ) : (
 
-                  <div className="mb-4">
+                      <div className="mt-2 flex items-center justify-between pt-2 border-t border-surface-800/60">
 
-                    <div className="text-xs text-surface-500 mb-1">
-                      Mean Absolute Difference
-                    </div>
+                        <span className="text-surface-400 font-medium">Status:</span>
 
+                        <span className={`font-semibold ${getReliabilityColor(
+                          dimension.data.status || dimension.data.interpretation
+                        )}`}>
+                          {dimension.data.status_label || (
+                            (dimension.data.evaluable ?? (dimension.data.icc !== null))
+                              ? (dimension.data.threshold_passed ? "Acceptable" : "Below threshold")
+                              : "Unevaluable"
+                          )}
+                        </span>
 
-                    <div className="text-lg font-semibold text-surface-200">
+                      </div>
 
-                      {dimension.data.mean_absolute_difference === null
-                        ? "N/A"
-                        : dimension.data.mean_absolute_difference.toFixed(3)}
-
-                    </div>
-
-                  </div>
-
-
-                  {/* INTERPRETATION */}
-
-                  <div
-                    className={`text-sm font-medium ${getReliabilityColor(
-                      dimension.data.interpretation
-                    )}`}
-                  >
-
-                    {dimension.data.interpretation}
-
-                  </div>
-
-
-                  <div className="text-xs text-surface-600 mt-2">
-
-                    Based on {dimension.data.n} shared response
-                    {dimension.data.n !== 1 ? "s" : ""}
+                    )}
 
                   </div>
 
@@ -1409,12 +1591,9 @@ export default function AnalysisDashboard() {
 
             {/* METHODOLOGY NOTE */}
 
-            <div className="mt-6 text-xs text-surface-600 border-t border-surface-700/50 pt-4">
+            <div className="mt-6 text-xs text-surface-500 border-t border-surface-700/50 pt-4 leading-relaxed">
 
-              ICC(2,1) represents a two-way random effects model
-              for absolute agreement between individual coders.
-              Mean Absolute Difference indicates the average
-              numerical difference between coder scores.
+              <strong className="text-surface-300">Methodological Specification:</strong> ICC(2,1) represents a two-way random-effects, absolute-agreement, single-measure intraclass correlation coefficient, calculated independently for dimensions T, I, and F from independently assigned scores matched by response ID. The preregistered reliability gate requires unrounded ICC(T) &gt;= 0.75 before inferential analysis. Mean Absolute Difference (MAD) is retained as a supplementary agreement metric. Passing the reliability threshold indicates acceptable agreement for research analysis but does not imply perfect agreement across coders.
 
             </div>
 

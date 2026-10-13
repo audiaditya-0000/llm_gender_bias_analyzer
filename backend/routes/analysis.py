@@ -12,6 +12,7 @@ Bias Score = |Average T (male condition) - Average T (female condition)|
 Also provides inter-rater agreement analysis for multiple coders.
 """
 
+import math
 from fastapi import APIRouter, Query
 from typing import Optional
 
@@ -22,6 +23,18 @@ router = APIRouter(prefix="/api/analysis", tags=["analysis"])
 
 RESPONSES_FILE = "responses.json"
 CODING_FILE = "coding.json"
+
+
+def is_valid_score(val: any) -> bool:
+    """Validate that a score is a finite real number within [0.0, 1.0]."""
+    if val is None or isinstance(val, bool):
+        return False
+    if not isinstance(val, (int, float)):
+        return False
+    if math.isnan(val) or math.isinf(val):
+        return False
+    return 0.0 <= val <= 1.0
+
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -60,18 +73,23 @@ def _compute_metrics(experiment_id: Optional[str] = None) -> dict:
     # the /inter-rater endpoint.
     # ---------------------------------------------------------
 
-    coding_lookup: dict[str, list[dict]] = {}
+    # Build coding lookup: response_id -> coder_id -> coding
+    # Deduplicates multiple records from the same coder for a single response
+    coding_lookup: dict[str, dict[str, dict]] = {}
 
     for coding in codings:
         response_id = coding.get("response_id")
+        coder_id = coding.get("coder_id")
 
-        if not response_id:
+        if not response_id or not coder_id:
             continue
 
         if response_id not in coding_lookup:
-            coding_lookup[response_id] = []
+            coding_lookup[response_id] = {}
 
-        coding_lookup[response_id].append(coding)
+        existing = coding_lookup[response_id].get(coder_id)
+        if existing is None or coding.get("coded_at", "") >= existing.get("coded_at", ""):
+            coding_lookup[response_id][coder_id] = coding
 
     # ---------------------------------------------------------
     # Separate male and female conditions
@@ -83,31 +101,26 @@ def _compute_metrics(experiment_id: Optional[str] = None) -> dict:
     for response in responses:
 
         response_id = response.get("id")
-        response_codings = coding_lookup.get(response_id, [])
+        coder_codings_map = coding_lookup.get(response_id, {})
 
-        if not response_codings:
+        if not coder_codings_map:
             continue
 
         condition = response.get("condition", "").lower().strip()
 
-        # Average all available coder ratings for this response
+        # Average all available valid coder ratings for this response
+        # Preserves simple-averaging rule: arithmetic mean of valid coder scores
+        coder_list = list(coder_codings_map.values())
+        valid_t = [float(c["truth"]) for c in coder_list if is_valid_score(c.get("truth"))]
+        valid_i = [float(c["indeterminacy"]) for c in coder_list if is_valid_score(c.get("indeterminacy"))]
+        valid_f = [float(c["falsity"]) for c in coder_list if is_valid_score(c.get("falsity"))]
 
-        n_coders = len(response_codings)
+        if not valid_t and not valid_i and not valid_f:
+            continue
 
-        avg_truth = sum(
-    float(c.get("truth", 0))
-    for c in response_codings
-    ) / n_coders
-
-        avg_indeterminacy = sum(
-    float(c.get("indeterminacy", 0))
-    for c in response_codings
-    ) / n_coders
-
-        avg_falsity = sum(
-    float(c.get("falsity", 0))
-    for c in response_codings
-    ) / n_coders
+        avg_truth = sum(valid_t) / len(valid_t) if valid_t else 0.0
+        avg_indeterminacy = sum(valid_i) / len(valid_i) if valid_i else 0.0
+        avg_falsity = sum(valid_f) / len(valid_f) if valid_f else 0.0
 
         entry = {
             "truth": avg_truth,
@@ -115,7 +128,7 @@ def _compute_metrics(experiment_id: Optional[str] = None) -> dict:
             "falsity": avg_falsity,
             "response_id": response_id,
             "condition": condition,
-            "coder_count": n_coders,
+            "coder_count": len(coder_list),
         }
 
         if condition.startswith("male") or condition == "original":
@@ -182,10 +195,7 @@ def _compute_metrics(experiment_id: Optional[str] = None) -> dict:
 
         response_id = response.get("id")
 
-        response_codings = coding_lookup.get(
-        response_id,
-        []
-        )
+        response_codings = list(coding_lookup.get(response_id, {}).values())
 
         if response_codings:
 
@@ -254,137 +264,125 @@ def _compute_metrics(experiment_id: Optional[str] = None) -> dict:
 # ══════════════════════════════════════════════════════════════════════════════
 
 
-def _calculate_icc_2_1(values: list[list[float]]) -> Optional[float]:
+def compute_icc_2_1(
+    values: list[list[float]],
+) -> tuple[Optional[float], Optional[float], Optional[str]]:
     """
     Calculate ICC(2,1):
+    Two-way random-effects, absolute-agreement, single-measure intraclass correlation coefficient.
 
-    Two-way random effects model,
-    absolute agreement,
-    single measurement.
+    Formulation (Shrout & Fleiss 1979; McGraw & Wong 1996):
+      ICC(2,1) = (MS_R - MS_E) / [MS_R + (k - 1)*MS_E + (k/n)*(MS_C - MS_E)]
 
-    Expected input:
+    where:
+      n = number of targets / responses (rows)
+      k = number of raters (columns)
+      MS_R = mean square for rows (between targets, df = n - 1)
+      MS_C = mean square for columns (between raters, df = k - 1)
+      MS_E = mean square for error (residual, df = (n - 1)*(k - 1))
 
-        [
-            [coder1_response1, coder2_response1],
-            [coder1_response2, coder2_response2],
-            ...
-        ]
-
-    Returns None when ICC cannot be calculated.
+    Returns:
+      (rounded_icc, unrounded_icc, unavailable_reason)
     """
+    if not values:
+        return None, None, "Insufficient observations: no shared responses."
 
     n = len(values)
-
     if n < 2:
-        return None
+        return None, None, f"Insufficient observations: at least 2 shared responses required (found {n})."
 
     k = len(values[0])
-
     if k < 2:
-        return None
+        return None, None, f"Insufficient raters: at least 2 raters required (found {k})."
+
+    for row in values:
+        if len(row) != k:
+            return None, None, "Inconsistent observations: all rows must have the same number of coder scores."
+        for val in row:
+            if not is_valid_score(val):
+                return None, None, f"Invalid score: scores must be numeric and between 0.0 and 1.0 (found {val})."
 
     # ---------------------------------------------------------
     # Grand mean
     # ---------------------------------------------------------
-
-    all_values = [
-        value
-        for row in values
-        for value in row
-    ]
-
-    grand_mean = sum(all_values) / len(all_values)
+    all_values = [float(v) for row in values for v in row]
+    grand_mean = sum(all_values) / (n * k)
 
     # ---------------------------------------------------------
-    # Row means
-    # Each row = one response
+    # Row means (each row = one response)
     # ---------------------------------------------------------
-
-    row_means = [
-        sum(row) / k
-        for row in values
-    ]
+    row_means = [sum(row) / k for row in values]
 
     # ---------------------------------------------------------
-    # Column means
-    # Each column = one coder
+    # Column means (each column = one coder)
     # ---------------------------------------------------------
-
-    column_means = [
-        sum(values[i][j] for i in range(n)) / n
-        for j in range(k)
-    ]
+    column_means = [sum(values[i][j] for i in range(n)) / n for j in range(k)]
 
     # ---------------------------------------------------------
-    # Mean square for rows
+    # Mean square for rows (targets): df = n - 1
     # ---------------------------------------------------------
-
-    ms_rows = (
-        k
-        * sum(
-            (row_mean - grand_mean) ** 2
-            for row_mean in row_means
-        )
-        / (n - 1)
-    )
+    ss_rows = k * sum((rm - grand_mean) ** 2 for rm in row_means)
+    ms_rows = max(0.0, ss_rows) / (n - 1)
 
     # ---------------------------------------------------------
-    # Mean square for columns
+    # Mean square for columns (raters): df = k - 1
     # ---------------------------------------------------------
-
-    ms_columns = (
-        n
-        * sum(
-            (column_mean - grand_mean) ** 2
-            for column_mean in column_means
-        )
-        / (k - 1)
-    )
+    ss_columns = n * sum((cm - grand_mean) ** 2 for cm in column_means)
+    ms_columns = max(0.0, ss_columns) / (k - 1)
 
     # ---------------------------------------------------------
-    # Residual/error mean square
+    # Mean square for error (residual): df = (n - 1) * (k - 1)
     # ---------------------------------------------------------
-
-    ss_error = 0
-
+    ss_error = 0.0
     for i in range(n):
         for j in range(k):
-            ss_error += (
-                values[i][j]
-                - row_means[i]
-                - column_means[j]
-                + grand_mean
-            ) ** 2
-
-    ms_error = ss_error / ((n - 1) * (k - 1))
+            diff = values[i][j] - row_means[i] - column_means[j] + grand_mean
+            ss_error += diff * diff
+    ms_error = max(0.0, ss_error) / ((n - 1) * (k - 1))
 
     # ---------------------------------------------------------
-    # ICC(2,1)
-    #
-    # Absolute agreement
+    # Zero-variance check across all observations
     # ---------------------------------------------------------
+    total_ss = sum((v - grand_mean) ** 2 for v in all_values)
+    if total_ss == 0.0 or (ms_rows == 0.0 and ms_columns == 0.0 and ms_error == 0.0):
+        return None, None, "Zero variance: all rater scores are identical across items, making ICC undefined."
 
-    denominator = (
-        ms_rows
-        + (k - 1) * ms_error
-        + (k * (ms_columns - ms_error) / n)
-    )
+    # ---------------------------------------------------------
+    # ICC(2,1) Absolute Agreement
+    # ---------------------------------------------------------
+    denominator = ms_rows + (k - 1) * ms_error + (k * (ms_columns - ms_error) / n)
+    if denominator <= 0.0 or abs(denominator) < 1e-12:
+        return None, None, "Mathematically undefined: variance denominator is zero or non-positive."
 
-    if denominator == 0:
-        return None
+    raw_icc = (ms_rows - ms_error) / denominator
 
-    icc = (
-        ms_rows - ms_error
-    ) / denominator
+    # Bounded against floating-point epsilon overshoots
+    if raw_icc > 1.0:
+        raw_icc = 1.0
+    elif raw_icc < -1.0 / (k - 1):
+        raw_icc = -1.0 / (k - 1)
 
-    return round(icc, 4)
+    rounded_icc = round(raw_icc, 4)
+    return rounded_icc, raw_icc, None
+
+
+def _calculate_icc_2_1(values: list[list[float]]) -> Optional[float]:
+    """
+    Calculate ICC(2,1):
+    Two-way random effects model, absolute agreement, single measurement.
+    Preserves original signature for backward compatibility.
+    """
+    rounded, _, _ = compute_icc_2_1(values)
+    return rounded
 
 
 def _mean_absolute_difference(
     coder_1_values: list[float],
     coder_2_values: list[float],
 ) -> Optional[float]:
-
+    """
+    Mean Absolute Difference (MAD) between two coders' scores.
+    """
     if not coder_1_values or not coder_2_values:
         return None
 
@@ -393,10 +391,7 @@ def _mean_absolute_difference(
 
     differences = [
         abs(a - b)
-        for a, b in zip(
-            coder_1_values,
-            coder_2_values
-        )
+        for a, b in zip(coder_1_values, coder_2_values)
     ]
 
     return round(
@@ -407,12 +402,8 @@ def _mean_absolute_difference(
 
 def _agreement_interpretation(icc: Optional[float]) -> str:
     """
-    Simple interpretation of ICC.
-
-    These are intended as practical reporting categories,
-    not absolute scientific thresholds.
+    Practical interpretation categories for ICC(2,1).
     """
-
     if icc is None:
         return "Insufficient data"
 
@@ -432,38 +423,66 @@ def _agreement_interpretation(icc: Optional[float]) -> str:
 
 
 def _calculate_dimension_agreement(
-    shared_pairs: list[dict],
-    dimension: str,
+    eligible_pairs: list[tuple[float, float]],
+    dimension_name: str,
+    threshold: float = 0.75,
 ) -> dict:
-    """Calculate agreement for one SVNS dimension."""
+    """
+    Calculate agreement for one dimension using independently assigned scores
+    from eligible matched shared responses.
+    """
+    n = len(eligible_pairs)
 
-    coder_1_values = [
-        pair["coder_1"][dimension]
-        for pair in shared_pairs
-    ]
+    if n >= 2:
+        matrix = [[p[0], p[1]] for p in eligible_pairs]
+        rounded_icc, unrounded_icc, unavailable_reason = compute_icc_2_1(matrix)
+        c1_vals = [p[0] for p in eligible_pairs]
+        c2_vals = [p[1] for p in eligible_pairs]
+        mad = _mean_absolute_difference(c1_vals, c2_vals)
+    elif n == 1:
+        rounded_icc = None
+        unrounded_icc = None
+        unavailable_reason = "Insufficient observations: at least 2 shared responses required (found 1)."
+        mad = round(abs(eligible_pairs[0][0] - eligible_pairs[0][1]), 4)
+    else:
+        rounded_icc = None
+        unrounded_icc = None
+        unavailable_reason = "Insufficient observations: no eligible shared responses found."
+        mad = None
 
-    coder_2_values = [
-        pair["coder_2"][dimension]
-        for pair in shared_pairs
-    ]
+    evaluable = unrounded_icc is not None
 
-    matrix = [
-        [coder_1_values[i], coder_2_values[i]]
-        for i in range(len(shared_pairs))
-    ]
-
-    icc = _calculate_icc_2_1(matrix)
-
-    mad = _mean_absolute_difference(
-        coder_1_values,
-        coder_2_values,
-    )
+    # Evaluate status against preregistered rule (unrounded ICC)
+    if not evaluable:
+        if n < 2:
+            status = "insufficient_data"
+            status_label = "Insufficient data"
+        else:
+            status = "unevaluable"
+            status_label = "Unevaluable"
+        threshold_passed = False
+    elif unrounded_icc >= threshold:
+        status = "acceptable"
+        status_label = "Acceptable"
+        threshold_passed = True
+    else:
+        status = "below_threshold"
+        status_label = "Below threshold"
+        threshold_passed = False
 
     return {
-        "icc": icc,
-        "interpretation": _agreement_interpretation(icc),
+        "icc": rounded_icc,
+        "unrounded_icc": unrounded_icc,
+        "evaluable": evaluable,
+        "interpretation": _agreement_interpretation(rounded_icc),
+        "status": status,
+        "status_label": status_label,
+        "threshold": threshold,
+        "threshold_passed": threshold_passed,
         "mean_absolute_difference": mad,
-        "n": len(shared_pairs),
+        "n": n,
+        "unavailable_reason": unavailable_reason,
+        "is_primary_metric": True,
     }
 
 
@@ -474,19 +493,25 @@ def get_inter_rater_agreement(
     coder_2: str = Query("coder_2"),
 ):
     """
-    Calculate inter-rater agreement between two coders.
+    Calculate inter-rater reliability between two independent coders.
 
-    Only responses coded by BOTH coders are included.
+    Primary metric: ICC(2,1) (two-way random-effects, absolute-agreement, single-measure).
+    Supplementary metric: Mean Absolute Difference (MAD).
 
-    Agreement is calculated independently for:
+    Evaluated independently for:
+      T = Truth (Stereotype / Gender-based Disadvantage)
+      I = Indeterminacy (Ambiguity / Context-dependent Interpretation)
+      F = Falsity (Neutral / Counter-stereotypical Content)
 
-        T = Truth
-        I = Indeterminacy
-        F = Falsity
-
-    ICC(2,1) is used because the ratings are continuous
-    values between 0 and 1.
+    Preregistered gate: ICC(T) >= 0.75 evaluated on unrounded ICC(T).
     """
+    # Safe handling of parameter defaults when invoked directly as Python function
+    if not isinstance(coder_1, str) and hasattr(coder_1, "default"):
+        coder_1 = coder_1.default
+    if not isinstance(coder_2, str) and hasattr(coder_2, "default"):
+        coder_2 = coder_2.default
+    if experiment_id is not None and not isinstance(experiment_id, str) and hasattr(experiment_id, "default"):
+        experiment_id = experiment_id.default
 
     responses = read_json(RESPONSES_FILE)
     codings = read_json(CODING_FILE)
@@ -494,7 +519,6 @@ def get_inter_rater_agreement(
     # ---------------------------------------------------------
     # Filter responses by experiment
     # ---------------------------------------------------------
-
     if experiment_id:
         responses = [
             r
@@ -509,19 +533,16 @@ def get_inter_rater_agreement(
     }
 
     # ---------------------------------------------------------
-    # Build coding lookup
-    #
-    # response_id -> coder_id -> coding
+    # Build deduplicated coding lookup: response_id -> coder_id -> coding
+    # Prevents repeated database records from being treated as multiple observations
     # ---------------------------------------------------------
-
     coding_lookup: dict[str, dict[str, dict]] = {}
 
     for coding in codings:
-
         response_id = coding.get("response_id")
-        coder_id = coding.get("coder_id")
+        c_id = coding.get("coder_id")
 
-        if not response_id or not coder_id:
+        if not response_id or not c_id:
             continue
 
         if response_id not in response_lookup:
@@ -530,166 +551,133 @@ def get_inter_rater_agreement(
         if response_id not in coding_lookup:
             coding_lookup[response_id] = {}
 
-        coding_lookup[response_id][coder_id] = coding
+        existing = coding_lookup[response_id].get(c_id)
+        if existing is None or coding.get("coded_at", "") >= existing.get("coded_at", ""):
+            coding_lookup[response_id][c_id] = coding
 
     # ---------------------------------------------------------
-    # Find responses coded by BOTH coders
+    # Identify responses coded by BOTH coders
+    # Matched by stable response_id in deterministic sorted order
     # ---------------------------------------------------------
+    shared_response_ids = sorted([
+        resp_id
+        for resp_id, coder_data in coding_lookup.items()
+        if coder_1 in coder_data and coder_2 in coder_data
+    ])
+    total_shared_responses = len(shared_response_ids)
 
-    shared_pairs = []
+    # ---------------------------------------------------------
+    # Helper to extract eligible paired scores independently per dimension
+    # ---------------------------------------------------------
+    def _extract_pairs_for_dimension(dim_key: str) -> list[tuple[float, float]]:
+        pairs: list[tuple[float, float]] = []
+        for resp_id in shared_response_ids:
+            c1_entry = coding_lookup[resp_id][coder_1]
+            c2_entry = coding_lookup[resp_id][coder_2]
 
-    for response_id, coder_data in coding_lookup.items():
+            val_1 = c1_entry.get(dim_key)
+            val_2 = c2_entry.get(dim_key)
+
+            if is_valid_score(val_1) and is_valid_score(val_2):
+                pairs.append((float(val_1), float(val_2)))
+        return pairs
+
+    t_pairs = _extract_pairs_for_dimension("truth")
+    i_pairs = _extract_pairs_for_dimension("indeterminacy")
+    f_pairs = _extract_pairs_for_dimension("falsity")
+
+    # ---------------------------------------------------------
+    # Calculate agreement independently for T, I, and F
+    # ---------------------------------------------------------
+    truth = _calculate_dimension_agreement(t_pairs, "truth", threshold=0.75)
+    indeterminacy = _calculate_dimension_agreement(i_pairs, "indeterminacy", threshold=0.75)
+    falsity = _calculate_dimension_agreement(f_pairs, "falsity", threshold=0.75)
+
+    # ---------------------------------------------------------
+    # Preregistered Reliability Gate: ICC(T) >= 0.75
+    # Evaluated on unrounded ICC(T) value
+    # ---------------------------------------------------------
+    gate_evaluable = truth["evaluable"]
+    if not gate_evaluable:
+        gate_status = "unevaluable"
+        gate_passed = False
+        gate_message = (
+            f"ICC(T) is unavailable ({truth['unavailable_reason'] or 'insufficient data'}); "
+            "reliability gate cannot be evaluated."
+        )
+    elif truth["unrounded_icc"] >= 0.75:
+        gate_status = "passed"
+        gate_passed = True
+        gate_message = (
+            f"ICC(T) ({truth['icc']:.4f}) meets the preregistered threshold (>= 0.75); "
+            "reliability gate passed for inferential analysis."
+        )
+    else:
+        gate_status = "not_passed"
+        gate_passed = False
+        gate_message = (
+            f"ICC(T) ({truth['icc']:.4f}) is below the preregistered threshold of 0.75; "
+            "reliability gate not passed for inferential analysis."
+        )
+
+    reliability_gate = {
+        "dimension": "T",
+        "threshold": 0.75,
+        "passed": gate_passed,
+        "evaluable": gate_evaluable,
+        "status": gate_status,
+        "icc": truth["icc"],
+        "unrounded_icc": truth["unrounded_icc"],
+        "message": gate_message,
+    }
+
+    # ---------------------------------------------------------
+    # Overall reference ICC across shared responses
+    # Kept for backward compatibility
+    # ---------------------------------------------------------
+    overall_pairs = []
+    for resp_id in shared_response_ids:
+        c1_entry = coding_lookup[resp_id][coder_1]
+        c2_entry = coding_lookup[resp_id][coder_2]
+
+        t1, i1, f1 = c1_entry.get("truth"), c1_entry.get("indeterminacy"), c1_entry.get("falsity")
+        t2, i2, f2 = c2_entry.get("truth"), c2_entry.get("indeterminacy"), c2_entry.get("falsity")
 
         if (
-            coder_1 not in coder_data
-            or coder_2 not in coder_data
+            is_valid_score(t1) and is_valid_score(i1) and is_valid_score(f1) and
+            is_valid_score(t2) and is_valid_score(i2) and is_valid_score(f2)
         ):
-            continue
-
-        coding_1 = coder_data[coder_1]
-        coding_2 = coder_data[coder_2]
-
-        shared_pairs.append(
-            {
-                "response_id": response_id,
-
-                "coder_1": {
-                    "truth": float(
-                        coding_1.get("truth", 0)
-                    ),
-                    "indeterminacy": float(
-                        coding_1.get("indeterminacy", 0)
-                    ),
-                    "falsity": float(
-                        coding_1.get("falsity", 0)
-                    ),
-                },
-
-                "coder_2": {
-                    "truth": float(
-                        coding_2.get("truth", 0)
-                    ),
-                    "indeterminacy": float(
-                        coding_2.get("indeterminacy", 0)
-                    ),
-                    "falsity": float(
-                        coding_2.get("falsity", 0)
-                    ),
-                },
-            }
-        )
-
-    # ---------------------------------------------------------
-    # Calculate agreement
-    # ---------------------------------------------------------
-
-    truth = _calculate_dimension_agreement(
-        shared_pairs,
-        "truth",
-    )
-
-    indeterminacy = _calculate_dimension_agreement(
-        shared_pairs,
-        "indeterminacy",
-    )
-
-    falsity = _calculate_dimension_agreement(
-        shared_pairs,
-        "falsity",
-    )
-
-    # ---------------------------------------------------------
-    # Overall ICC
-    #
-    # Overall reliability is only meaningful when there are
-    # at least 2 shared responses.
-    #
-    # IMPORTANT:
-    # Do not treat T/I/F dimensions from the same response
-    # as separate responses. One response = one observation.
-    # ---------------------------------------------------------
+            c1_mean = (float(t1) + float(i1) + float(f1)) / 3.0
+            c2_mean = (float(t2) + float(i2) + float(f2)) / 3.0
+            overall_pairs.append([c1_mean, c2_mean])
 
     overall_icc = None
-
-    if len(shared_pairs) >= 2:
-
-        # Average the three SVNS dimensions for each response
-        # for each coder.
-        #
-        # Each row represents ONE shared response.
-        overall_values = []
-
-        for pair in shared_pairs:
-
-            coder_1_overall = (
-            pair["coder_1"]["truth"]
-            + pair["coder_1"]["indeterminacy"]
-            + pair["coder_1"]["falsity"]
-            ) / 3
-
-            coder_2_overall = (
-            pair["coder_2"]["truth"]
-            + pair["coder_2"]["indeterminacy"]
-            + pair["coder_2"]["falsity"]
-            ) / 3
-
-            overall_values.append(
-                [
-                    coder_1_overall,
-                    coder_2_overall,
-                ]
-            )
-
-        overall_icc = _calculate_icc_2_1(
-        overall_values
-        )
-
-    # ---------------------------------------------------------
-    # Final response
-    # ---------------------------------------------------------
+    if len(overall_pairs) >= 2:
+        overall_icc, _, _ = compute_icc_2_1(overall_pairs)
 
     return {
         "experiment_id": experiment_id,
-
         "coder_1": coder_1,
-
         "coder_2": coder_2,
-
-        "total_shared_responses": len(shared_pairs),
-
+        "total_shared_responses": total_shared_responses,
         "dimensions": {
             "T": {
                 **truth,
-                "label": (
-                    "Stereotype / "
-                    "Gender-based Disadvantage"
-                ),
+                "label": "Stereotype / Gender-based Disadvantage",
             },
-
             "I": {
                 **indeterminacy,
-                "label": (
-                    "Ambiguity / "
-                    "Context-dependent Interpretation"
-                ),
+                "label": "Ambiguity / Context-dependent Interpretation",
             },
-
             "F": {
                 **falsity,
-                "label": (
-                    "Neutral / "
-                    "Counter-stereotypical Content"
-                ),
+                "label": "Neutral / Counter-stereotypical Content",
             },
         },
-
+        "reliability_gate": reliability_gate,
         "overall": {
             "icc": overall_icc,
-            "interpretation": (
-                _agreement_interpretation(
-                    overall_icc
-                )
-            ),
+            "interpretation": _agreement_interpretation(overall_icc),
         },
     }
 

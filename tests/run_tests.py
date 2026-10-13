@@ -25,6 +25,15 @@ def run_tests():
     assert render_scenario(template5, "male") == template5, "Test 5 Male failed"
     assert render_scenario(template5, "female") == template5, "Test 5 Female failed"
 
-    print("All tests passed!")
+    print("Gender swap tests passed!")
 
-run_tests()
+if __name__ == "__main__":
+    run_tests()
+    import unittest
+    from test_reliability import TestInterRaterReliability
+    suite = unittest.defaultTestLoader.loadTestsFromTestCase(TestInterRaterReliability)
+    runner = unittest.TextTestRunner(verbosity=2)
+    result = runner.run(suite)
+    if not result.wasSuccessful():
+        sys.exit(1)
+    print("All test suites passed successfully!")
