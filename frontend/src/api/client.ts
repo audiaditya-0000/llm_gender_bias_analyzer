@@ -23,6 +23,7 @@ import type {
   WordPair,
   RunnerProgress,
   InterRaterReliability,
+  InferentialAnalysisResponse,
 } from "../types";
 
 const BASE_URL = "http://localhost:8000/api";
@@ -493,7 +494,24 @@ export const analysisApi = {
       `/analysis/inter-rater?${qs}`
     );
   },
+
+  /**
+   * Cell-level inferential gender bias analysis on Truth (T) dimension.
+   * Model-specific paired Wilcoxon signed-rank tests with Bonferroni correction,
+   * bootstrap descriptive estimands, Cohen's d_z with noncentral-t CIs,
+   * and decoupled ICC(T) reliability-gate status.
+   */
+  inferential: (experimentId?: string) => {
+    const qs = experimentId
+      ? `?experiment_id=${encodeURIComponent(experimentId)}`
+      : "";
+
+    return request<InferentialAnalysisResponse>(
+      `/analysis/inferential${qs}`
+    );
+  },
 };
+
 
 
 // ── Ollama ───────────────────────────────────────────────────────────────────

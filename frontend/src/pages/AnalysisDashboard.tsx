@@ -32,7 +32,9 @@ import type {
   AnalysisSummary,
   Experiment,
   InterRaterReliability,
+  InferentialAnalysisResponse,
 } from "../types";
+
 
 
 /* =========================================================
@@ -146,6 +148,9 @@ export default function AnalysisDashboard() {
   const [reliability, setReliability] =
     useState<InterRaterReliability | null>(null);
 
+  const [inferential, setInferential] =
+    useState<InferentialAnalysisResponse | null>(null);
+
   const [experimentId, setExperimentId] =
     useState("");
 
@@ -159,6 +164,9 @@ export default function AnalysisDashboard() {
     useState(true);
 
   const [reliabilityLoading, setReliabilityLoading] =
+    useState(false);
+
+  const [inferentialLoading, setInferentialLoading] =
     useState(false);
 
 
@@ -177,6 +185,7 @@ export default function AnalysisDashboard() {
 
   useEffect(() => {
     loadAnalysis();
+    loadInferential();
   }, [experimentId]);
 
 
@@ -187,6 +196,7 @@ export default function AnalysisDashboard() {
   useEffect(() => {
     loadReliability();
   }, [experimentId, coder1, coder2]);
+
 
 
   /* =========================================================
@@ -270,6 +280,36 @@ export default function AnalysisDashboard() {
 
     }
   }
+
+
+  async function loadInferential() {
+
+    try {
+
+      setInferentialLoading(true);
+
+      const data = await analysisApi.inferential(
+        experimentId || undefined
+      );
+
+      setInferential(data);
+
+    } catch (err) {
+
+      console.error(
+        "Failed to load inferential analysis:",
+        err
+      );
+
+      setInferential(null);
+
+    } finally {
+
+      setInferentialLoading(false);
+
+    }
+  }
+
 
 
   /* =========================================================
@@ -1599,6 +1639,422 @@ export default function AnalysisDashboard() {
 
           </>
 
+        )}
+
+      </div>
+
+
+      {/* =====================================================
+          CELL-LEVEL INFERENTIAL GENDER-BIAS ANALYSIS (T-DIMENSION)
+      ====================================================== */}
+
+      <div className="glass-card-static p-6 mb-8 animate-fade-in">
+
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-surface-700/50">
+
+          <div>
+            <div className="flex items-center gap-3">
+              <FlaskConical className="text-primary-400" size={24} />
+              <h2 className="text-lg font-semibold text-surface-100">
+                Cell-Level Inferential Gender-Bias Analysis (T-Dimension)
+              </h2>
+            </div>
+            <p className="text-xs text-surface-400 mt-1">
+              Prespecified primary inferential analysis evaluating stereotype / gender-based disadvantage (Truth rating) across matched Scenario × Scaffold × Model cells.
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-mono bg-primary-500/10 text-primary-300 border border-primary-500/30 px-3 py-1 rounded-full">
+              Primary Outcome: T (Truth)
+            </span>
+            <span className="text-xs font-mono bg-surface-800 text-surface-400 border border-surface-700 px-3 py-1 rounded-full">
+              Bonferroni α = 0.025 (m = 2)
+            </span>
+          </div>
+
+        </div>
+
+        {inferentialLoading ? (
+          <div className="py-12 text-center text-surface-400 text-sm">
+            Computing cell-level inferential statistics...
+          </div>
+        ) : !inferential ? (
+          <div className="py-8 text-center text-surface-500 text-sm">
+            Inferential analysis data unavailable for the current selection.
+          </div>
+        ) : (
+          <div className="space-y-6 mt-6">
+
+            {/* RELIABILITY GATE STATUS BANNER */}
+            {inferential.reliability_gate?.passed ? (
+              <div className="bg-emerald-950/40 border border-emerald-500/40 rounded-lg p-4 flex items-start gap-3">
+                <CheckCircle2 size={20} className="text-emerald-400 mt-0.5 flex-shrink-0" />
+                <div>
+                  <div className="text-sm font-semibold text-emerald-300">
+                    Reliability Gate Passed (ICC(T) = {inferential.reliability_gate.icc?.toFixed(4) ?? "N/A"} ≥ 0.75)
+                  </div>
+                  <p className="text-xs text-emerald-400/90 mt-1">
+                    The preregistered inter-coder reliability threshold has been met on the primary Truth dimension. Inferential results support confirmatory claims.
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <div className="bg-yellow-950/40 border border-yellow-500/40 rounded-lg p-4 flex items-start gap-3">
+                <AlertTriangle size={20} className="text-yellow-400 mt-0.5 flex-shrink-0" />
+                <div>
+                  <div className="text-sm font-semibold text-yellow-300">
+                    Reliability Warning — Exploratory Reporting Only
+                  </div>
+                  <p className="text-xs text-yellow-400/90 mt-1">
+                    {inferential.gate_warning || "Reliability gate not passed: ICC(T) is below 0.75 or unevaluable. Inferential findings must be interpreted as exploratory."}
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* EXPERIMENTAL COVERAGE & CELL ACCOUNTING */}
+            <div className="bg-surface-900/60 border border-surface-700/50 rounded-lg p-5">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-sm font-semibold text-surface-200 flex items-center gap-2">
+                  <Database size={16} className="text-accent-400" />
+                  Experimental Coverage & Cell Accounting
+                </h3>
+                <span className="text-xs text-surface-400 font-mono">
+                  {inferential.coverage.eligible_paired_cells_total} / {inferential.coverage.planned_cells_total} Planned Cells Eligible
+                </span>
+              </div>
+
+              <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 mb-4">
+                <div className="bg-surface-800/60 p-3 rounded border border-surface-700/30 text-center">
+                  <div className="text-xs text-surface-400">Planned Cells</div>
+                  <div className="text-lg font-bold text-surface-100">{inferential.coverage.planned_cells_total}</div>
+                  <div className="text-[10px] text-surface-500">10 Scen × 3 Scaff × 2 Mod</div>
+                </div>
+
+                <div className="bg-surface-800/60 p-3 rounded border border-surface-700/30 text-center">
+                  <div className="text-xs text-surface-400">Represented Combos</div>
+                  <div className="text-lg font-bold text-cyan-400">{inferential.coverage.represented_combinations_total}</div>
+                  <div className="text-[10px] text-surface-500">In Active Scenario</div>
+                </div>
+
+                <div className="bg-surface-800/60 p-3 rounded border border-surface-700/30 text-center">
+                  <div className="text-xs text-surface-400">Eligible Paired Cells</div>
+                  <div className="text-lg font-bold text-emerald-400">{inferential.coverage.eligible_paired_cells_total}</div>
+                  <div className="text-[10px] text-surface-500">Both conditions coded</div>
+                </div>
+
+                <div className="bg-surface-800/60 p-3 rounded border border-surface-700/30 text-center">
+                  <div className="text-xs text-surface-400">Empty Combinations</div>
+                  <div className="text-lg font-bold text-yellow-400">{inferential.coverage.empty_combinations_count}</div>
+                  <div className="text-[10px] text-surface-500">0 responses in DB</div>
+                </div>
+
+                <div className="bg-surface-800/60 p-3 rounded border border-surface-700/30 text-center col-span-2 sm:col-span-1">
+                  <div className="text-xs text-surface-400">Absent Scenarios</div>
+                  <div className="text-lg font-bold text-surface-400">{inferential.coverage.absent_scenarios_count}</div>
+                  <div className="text-[10px] text-surface-500">9 of 10 unpopulated</div>
+                </div>
+              </div>
+
+              <div className="bg-surface-950/40 p-3 rounded border border-surface-800 text-xs text-surface-400 leading-relaxed">
+                <strong className="text-surface-300">Coverage Limitation: </strong>
+                {inferential.coverage.limitation_disclosure}
+              </div>
+            </div>
+
+            {/* OVERALL POOLED CELL-LEVEL DESCRIPTIVES */}
+            <div className="bg-surface-900/40 border border-surface-700/40 rounded-lg p-5">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-sm font-semibold text-surface-200 flex items-center gap-2">
+                  <BarChart3 size={16} className="text-primary-400" />
+                  Overall Cell-Level Descriptive Estimands (Pooled Across Observed Cells, N = {inferential.coverage.eligible_paired_cells_total})
+                </h3>
+                <span className="text-xs text-surface-400 font-mono">
+                  10,000 Bootstrap Resamples (Seed: {inferential.overall_descriptives.seed})
+                </span>
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-4 mb-3">
+                <div className="bg-surface-800/50 p-4 rounded border border-surface-700/30">
+                  <div className="text-xs text-surface-400 mb-1">Mean Signed Difference (Female T − Male T)</div>
+                  <div className="text-xl font-bold font-mono text-primary-300">
+                    {inferential.overall_descriptives.mean_signed_diff !== null ? (
+                      inferential.overall_descriptives.mean_signed_diff > 0 ? `+${inferential.overall_descriptives.mean_signed_diff.toFixed(4)}` : inferential.overall_descriptives.mean_signed_diff.toFixed(4)
+                    ) : "N/A"}
+                  </div>
+                  <div className="text-xs text-surface-400 mt-1">
+                    95% Percentile Bootstrap CI:{" "}
+                    <span className="font-mono text-surface-200">
+                      [{inferential.overall_descriptives.signed_ci_lower?.toFixed(4) ?? "N/A"}, {inferential.overall_descriptives.signed_ci_upper?.toFixed(4) ?? "N/A"}]
+                    </span>
+                  </div>
+                </div>
+
+                <div className="bg-surface-800/50 p-4 rounded border border-surface-700/30">
+                  <div className="text-xs text-surface-400 mb-1">Mean Absolute Cell Difference (|Female T − Male T|)</div>
+                  <div className="text-xl font-bold font-mono text-amber-300">
+                    {inferential.overall_descriptives.mean_abs_diff !== null ? inferential.overall_descriptives.mean_abs_diff.toFixed(4) : "N/A"}
+                  </div>
+                  <div className="text-xs text-surface-400 mt-1">
+                    95% Percentile Bootstrap CI:{" "}
+                    <span className="font-mono text-surface-200">
+                      [{inferential.overall_descriptives.abs_ci_lower?.toFixed(4) ?? "N/A"}, {inferential.overall_descriptives.abs_ci_upper?.toFixed(4) ?? "N/A"}]
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="text-[11px] text-surface-500 italic">
+                {inferential.overall_descriptives.caveat}
+              </div>
+            </div>
+
+            {/* MODEL-SPECIFIC INFERENTIAL CARDS */}
+            <div className="grid lg:grid-cols-2 gap-6">
+              {["llama3.2:latest", "mistral:latest"].map((modelKey) => {
+                const modelData = inferential.models[modelKey];
+                if (!modelData) return null;
+
+                const primary = modelData.primary_test;
+                const effects = modelData.effect_sizes;
+                const desc = modelData.descriptives;
+                const norm = modelData.normality_diagnostic;
+                const param = modelData.supporting_parametric_test;
+
+                return (
+                  <div
+                    key={modelKey}
+                    className="bg-surface-900/60 border border-surface-700/50 rounded-lg p-5 flex flex-col justify-between"
+                  >
+                    <div>
+                      {/* Model Card Header */}
+                      <div className="flex items-center justify-between pb-3 mb-4 border-b border-surface-700/40">
+                        <div>
+                          <div className="text-base font-bold text-surface-100 font-mono">{modelKey}</div>
+                          <div className="text-xs text-surface-400">
+                            Eligible cells: {modelData.eligible_cell_count} of 30 planned
+                          </div>
+                        </div>
+                        <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${primary.significant ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30" : "bg-surface-800 text-surface-400 border border-surface-700"}`}>
+                          {primary.significant ? "Significant (p < 0.025)" : "Not Significant"}
+                        </span>
+                      </div>
+
+                      {/* Observed Cell Differences */}
+                      <div className="mb-4 bg-surface-950/40 p-3 rounded border border-surface-800">
+                        <div className="text-xs text-surface-400 mb-1">
+                          Observed Cell Differences (Female T − Male T):
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          {modelData.cell_differences.map((d, idx) => (
+                            <span
+                              key={idx}
+                              className={`text-xs font-mono px-2 py-0.5 rounded border ${d > 0 ? "bg-red-950/40 text-red-300 border-red-800/40" : d < 0 ? "bg-blue-950/40 text-blue-300 border-blue-800/40" : "bg-surface-800 text-surface-400 border-surface-700"}`}
+                            >
+                              Cell {idx + 1}: {d > 0 ? `+${d.toFixed(4)}` : d.toFixed(4)}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Primary Test: Two-sided Paired Wilcoxon Signed-Rank */}
+                      <div className="mb-4 bg-surface-800/40 p-4 rounded-lg border border-surface-700/30">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-xs font-semibold text-primary-300 uppercase tracking-wider">
+                            Primary Hypothesis Test (Wilcoxon Signed-Rank)
+                          </span>
+                          <span className="text-[10px] font-mono text-surface-400">
+                            Exact Sign Permutation
+                          </span>
+                        </div>
+
+                        {primary.evaluable ? (
+                          <div className="grid grid-cols-2 gap-3 text-xs">
+                            <div>
+                              <span className="text-surface-400">Test Statistic (W+): </span>
+                              <strong className="text-surface-200 font-mono">{primary.W_positive ?? "N/A"}</strong>
+                            </div>
+                            <div>
+                              <span className="text-surface-400">Non-zero Cells (nr): </span>
+                              <strong className="text-surface-200 font-mono">{primary.n_nonzero}</strong>
+                              <span className="text-[10px] text-surface-500 ml-1">({primary.n_cells - primary.n_nonzero} zeros dropped)</span>
+                            </div>
+                            <div>
+                              <span className="text-surface-400">Raw p-value: </span>
+                              <strong className="text-surface-200 font-mono">{primary.p_raw !== null ? primary.p_raw.toFixed(4) : "N/A"}</strong>
+                            </div>
+                            <div>
+                              <span className="text-surface-400">Bonferroni Adj p: </span>
+                              <strong className="text-surface-200 font-mono">{primary.p_adjusted !== null ? primary.p_adjusted.toFixed(4) : "N/A"}</strong>
+                            </div>
+                            <div className="col-span-2 text-[11px] text-surface-400 mt-1 border-t border-surface-700/30 pt-1">
+                              FWER Family Size m = 2 | Adjusted Significance Threshold: α = 0.025
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="text-xs text-yellow-400">
+                            {primary.reason || "Wilcoxon signed-rank test is unevaluable."}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Effect Sizes */}
+                      <div className="mb-4 bg-surface-800/40 p-4 rounded-lg border border-surface-700/30">
+                        <div className="text-xs font-semibold text-accent-300 uppercase tracking-wider mb-2">
+                          Effect Sizes
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+                          <div>
+                            <div className="text-surface-400">Rank-Biserial Correlation (r_rb):</div>
+                            <div className="text-sm font-bold font-mono text-surface-100">
+                              {effects.rank_biserial !== null ? (
+                                effects.rank_biserial > 0 ? `+${effects.rank_biserial.toFixed(4)}` : effects.rank_biserial.toFixed(4)
+                              ) : "N/A"}
+                            </div>
+                            <div className="text-[10px] text-surface-500">Kerby (2014) simple difference</div>
+                          </div>
+
+                          <div>
+                            <div className="text-surface-400">Cohen's dz:</div>
+                            <div className="text-sm font-bold font-mono text-surface-100">
+                              {effects.cohens_dz?.d_z !== null ? (
+                                (effects.cohens_dz?.d_z ?? 0) > 0 ? `+${effects.cohens_dz?.d_z?.toFixed(4)}` : effects.cohens_dz?.d_z?.toFixed(4)
+                              ) : "N/A"}
+                            </div>
+                            <div className="text-[10px] text-surface-500">
+                              95% Noncentral-t CI: [{effects.cohens_dz?.ci_lower?.toFixed(4) ?? "N/A"}, {effects.cohens_dz?.ci_upper?.toFixed(4) ?? "N/A"}]
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Descriptives & Bootstrap */}
+                      <div className="mb-4 bg-surface-800/40 p-4 rounded-lg border border-surface-700/30 text-xs">
+                        <div className="text-xs font-semibold text-surface-300 uppercase tracking-wider mb-2">
+                          Cell Descriptives & 10k Bootstrap CIs
+                        </div>
+                        <div className="grid grid-cols-2 gap-2 mb-2">
+                          <div>
+                            <span className="text-surface-400">Mean Signed Diff: </span>
+                            <span className="font-mono text-surface-200">
+                              {desc.mean_signed_diff !== null ? (desc.mean_signed_diff > 0 ? `+${desc.mean_signed_diff.toFixed(4)}` : desc.mean_signed_diff.toFixed(4)) : "N/A"}
+                            </span>
+                            <div className="text-[10px] text-surface-500">
+                              95% CI: [{desc.signed_ci_lower?.toFixed(4) ?? "N/A"}, {desc.signed_ci_upper?.toFixed(4) ?? "N/A"}]
+                            </div>
+                          </div>
+                          <div>
+                            <span className="text-surface-400">Mean Absolute Diff: </span>
+                            <span className="font-mono text-surface-200">
+                              {desc.mean_abs_diff !== null ? desc.mean_abs_diff.toFixed(4) : "N/A"}
+                            </span>
+                            <div className="text-[10px] text-surface-500">
+                              95% CI: [{desc.abs_ci_lower?.toFixed(4) ?? "N/A"}, {desc.abs_ci_upper?.toFixed(4) ?? "N/A"}]
+                            </div>
+                          </div>
+                        </div>
+                        <div className="text-[10px] text-surface-500 italic">
+                          {desc.caveat}
+                        </div>
+                      </div>
+
+                      {/* Normality Diagnostic & Supporting Paired t-Test */}
+                      <div className="bg-surface-800/40 p-4 rounded-lg border border-surface-700/30 text-xs">
+                        <div className="text-xs font-semibold text-surface-300 uppercase tracking-wider mb-2">
+                          Normality Diagnostic & Supporting Parametric Test
+                        </div>
+                        <div className="mb-2">
+                          <span className="text-surface-400">Shapiro-Wilk Diagnostic: </span>
+                          <span className={`font-medium ${norm.status === "not_rejected" ? "text-emerald-400" : norm.status === "rejected" ? "text-red-400" : "text-yellow-400"}`}>
+                            {norm.status === "not_rejected" ? `Not Rejected (W = ${norm.W?.toFixed(4)}, p = ${norm.p_value?.toFixed(4)})` : norm.status === "rejected" ? `Rejected (p < 0.05)` : "Unavailable"}
+                          </span>
+                          <div className="text-[10px] text-surface-500">{norm.reason}</div>
+                        </div>
+
+                        <div className="border-t border-surface-700/30 pt-2">
+                          <span className="text-surface-400">Supporting Paired t-test: </span>
+                          {param.status === "reported" ? (
+                            <span className="text-surface-200 font-mono">
+                              t({param.df}) = {param.t_statistic?.toFixed(4)}, p = {param.p_value?.toFixed(4)}
+                            </span>
+                          ) : (
+                            <span className="text-surface-500 italic">
+                              Not Reported ({param.reason})
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* REPRESENTED COMBINATIONS AND OBSERVED CELLS TABLE */}
+            <div className="bg-surface-900/40 border border-surface-700/40 rounded-lg p-5">
+              <h3 className="text-sm font-semibold text-surface-200 mb-3 flex items-center gap-2">
+                <FileCheck2 size={16} className="text-primary-400" />
+                Scenario × Scaffold × Model Cell Inventory (Active Scenario)
+              </h3>
+
+              <div className="overflow-x-auto">
+                <table className="w-full text-xs text-left">
+                  <thead className="bg-surface-800/60 text-surface-400 border-b border-surface-700">
+                    <tr>
+                      <th className="py-2 px-3">Scaffold</th>
+                      <th className="py-2 px-3">Model</th>
+                      <th className="py-2 px-3 text-center">Responses</th>
+                      <th className="py-2 px-3 text-center">Female T (mean)</th>
+                      <th className="py-2 px-3 text-center">Male T (mean)</th>
+                      <th className="py-2 px-3 text-center">Signed Diff (F − M)</th>
+                      <th className="py-2 px-3 text-right">Cell Status</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-surface-800/60 font-mono">
+                    {inferential.represented_combinations.map((c, idx) => (
+                      <tr key={idx} className="hover:bg-surface-800/30 transition-colors">
+                        <td className="py-2 px-3 font-sans text-surface-300">{c.scaffold_name}</td>
+                        <td className="py-2 px-3 text-surface-200">{c.model}</td>
+                        <td className="py-2 px-3 text-center text-surface-400">{c.total_responses} ({c.n_female}F / {c.n_male}M)</td>
+                        <td className="py-2 px-3 text-center text-surface-200">{c.mean_female_T !== null ? c.mean_female_T.toFixed(4) : "—"}</td>
+                        <td className="py-2 px-3 text-center text-surface-200">{c.mean_male_T !== null ? c.mean_male_T.toFixed(4) : "—"}</td>
+                        <td className="py-2 px-3 text-center">
+                          {c.signed_difference !== null ? (
+                            <span className={c.signed_difference > 0 ? "text-red-400 font-semibold" : c.signed_difference < 0 ? "text-blue-400 font-semibold" : "text-surface-400"}>
+                              {c.signed_difference > 0 ? `+${c.signed_difference.toFixed(4)}` : c.signed_difference.toFixed(4)}
+                            </span>
+                          ) : "—"}
+                        </td>
+                        <td className="py-2 px-3 text-right font-sans">
+                          {c.is_eligible ? (
+                            <span className="text-emerald-400 bg-emerald-950/40 px-2 py-0.5 rounded border border-emerald-800/30 text-[10px]">
+                              Eligible Paired
+                            </span>
+                          ) : c.is_empty ? (
+                            <span className="text-yellow-400 bg-yellow-950/40 px-2 py-0.5 rounded border border-yellow-800/30 text-[10px]">
+                              Empty (0 resp)
+                            </span>
+                          ) : (
+                            <span className="text-surface-500 bg-surface-800 px-2 py-0.5 rounded text-[10px]">
+                              Unpaired
+                            </span>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* METHODOLOGICAL SPECIFICATION NOTE */}
+            <div className="text-[11px] text-surface-500 border-t border-surface-700/40 pt-3 leading-relaxed">
+              <strong className="text-surface-400">Methodological Notes: </strong>
+              Cell-level paired comparisons evaluate the difference between the mean coded Truth score for female responses and male responses within each scenario × scaffold cell. Primary hypothesis tests are two-sided paired Wilcoxon signed-rank tests per model using exact sign-assignment permutation enumeration over non-zero differences with mid-ranks for ties. Multiple comparisons across the two models are controlled via Bonferroni correction (family size m = 2, α_adjusted = 0.025). Descriptive estimands include 10,000-iteration cell-level percentile bootstrap 95% confidence intervals with fixed seed (seed = 42). Cohen's dz uses exact noncentral-t confidence intervals. Paired t-test is conditionally reported only when Shapiro-Wilk does not reject normality. Linear mixed-effects modeling (LMM) remains deferred.
+            </div>
+
+          </div>
         )}
 
       </div>

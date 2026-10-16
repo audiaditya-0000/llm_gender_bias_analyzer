@@ -17,6 +17,8 @@ from fastapi import APIRouter, Query
 from typing import Optional
 
 from storage import read_json
+from services.statistical_inference import run_inferential_pipeline
+from models import InferentialAnalysisResponse
 
 
 router = APIRouter(prefix="/api/analysis", tags=["analysis"])
@@ -732,3 +734,54 @@ def get_all_experiments_analysis():
             results.append(metrics)
 
     return results
+
+
+@router.get("/inferential")
+def get_inferential_analysis(
+    experiment_id: Optional[str] = Query(None)
+):
+    """
+    Cell-level inferential gender bias analysis for the Truth (T) dimension.
+
+    - Primary tests: Model-specific paired two-sided Wilcoxon signed-rank tests
+      with exact sign-assignment permutation enumeration over non-zero differences
+      and mid-ranks for ties.
+    - Multiple comparisons: Bonferroni correction for family size m = 2 (alpha = 0.025).
+    - Descriptives: Mean signed and absolute differences, overall and per model,
+      with 10,000-iteration fixed-seed (seed=42) percentile bootstrap 95% CIs.
+    - Effect sizes: Paired rank-biserial correlation and Cohen's d_z with exact
+      noncentral-t 95% confidence intervals.
+    - Parametric support: Conditional on Shapiro-Wilk normality diagnostic (alpha = 0.05).
+    - Decoupled Reliability Gate: Evaluates against authoritative backend ICC(T) >= 0.75 gate.
+    """
+    # Safe handling of parameter defaults when invoked directly as Python function
+    if experiment_id is not None and not isinstance(experiment_id, str) and hasattr(experiment_id, "default"):
+        experiment_id = experiment_id.default
+
+    # Fetch authoritative reliability gate from inter-rater endpoint
+    agreement = get_inter_rater_agreement(experiment_id=experiment_id)
+    reliability_gate = agreement.get("reliability_gate", {})
+
+    # Run inferential pipeline
+    pipeline_res = run_inferential_pipeline(experiment_id=experiment_id)
+
+    # Attach gate warning if gate is not passed or unevaluable
+    gate_passed = reliability_gate.get("passed", False)
+    if not gate_passed:
+        gate_warning = (
+            f"Reliability gate not passed: ICC(T) is below the preregistered 0.75 threshold "
+            f"or unevaluable ({reliability_gate.get('message', 'Unverified inter-rater reliability')}). "
+            "Cell-level inferential findings must be interpreted as exploratory and cannot support "
+            "confirmatory claims."
+        )
+    else:
+        gate_warning = None
+
+    return {
+        "coverage": pipeline_res["coverage"],
+        "reliability_gate": reliability_gate,
+        "gate_warning": gate_warning,
+        "overall_descriptives": pipeline_res["overall_descriptives"],
+        "models": pipeline_res["models"],
+        "represented_combinations": pipeline_res["represented_combinations"],
+    }

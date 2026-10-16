@@ -567,3 +567,118 @@ export type InterRaterAgreement =
  */
 export type InterRaterResult =
   InterRaterReliability;
+
+
+// ── Inferential Analysis Types ───────────────────────────────────────────────
+
+export interface CellSummary {
+  scenario_id: string;
+  scenario_title: string;
+  scaffold_id: string;
+  scaffold_name: string;
+  model: string;
+  total_responses: number;
+  n_female: number;
+  n_male: number;
+  mean_female_T: number | null;
+  mean_male_T: number | null;
+  signed_difference: number | null;
+  is_eligible: boolean;
+  is_empty: boolean;
+}
+
+export interface CoverageSummary {
+  planned_cells_total: number;
+  planned_cells_per_model: number;
+  represented_combinations_total: number;
+  empty_combinations_count: number;
+  unpaired_combinations_count: number;
+  eligible_paired_cells_total: number;
+  eligible_cells_llama: number;
+  eligible_cells_mistral: number;
+  absent_scenarios_count: number;
+  limitation_disclosure: string;
+}
+
+export interface DescriptiveEstimand {
+  mean_signed_diff: number | null;
+  signed_ci_lower: number | null;
+  signed_ci_upper: number | null;
+  mean_abs_diff: number | null;
+  abs_ci_lower: number | null;
+  abs_ci_upper: number | null;
+  iterations: number;
+  seed: number;
+  caveat: string;
+}
+
+export interface WilcoxonTestResult {
+  test_name: string;
+  evaluable: boolean;
+  reason: string | null;
+  n_cells: number;
+  n_nonzero: number;
+  W_positive: number | null;
+  W_negative: number | null;
+  test_statistic: number | null;
+  p_raw: number | null;
+  p_adjusted: number | null;
+  alpha_adjusted: number;
+  significant: boolean;
+  method: string;
+  rank_biserial: number | null;
+  permutations_evaluated?: number;
+}
+
+export interface CohensDzResult {
+  d_z: number | null;
+  ci_lower: number | null;
+  ci_upper: number | null;
+  evaluable: boolean;
+  reason: string | null;
+  method?: string;
+  degrees_of_freedom?: number;
+  t_observed?: number;
+}
+
+export interface EffectSizeSummary {
+  rank_biserial: number | null;
+  rank_biserial_sign_convention: string;
+  cohens_dz: CohensDzResult;
+}
+
+export interface NormalityDiagnosticResult {
+  status: "not_rejected" | "rejected" | "unavailable";
+  W: number | null;
+  p_value: number | null;
+  reason: string;
+}
+
+export interface SupportingParametricResult {
+  status: "reported" | "not_reported";
+  t_statistic: number | null;
+  df: number | null;
+  p_value: number | null;
+  reason: string;
+}
+
+export interface ModelInferenceSummary {
+  model: string;
+  eligible_cell_count: number;
+  cell_differences: number[];
+  cells: CellSummary[];
+  primary_test: WilcoxonTestResult;
+  effect_sizes: EffectSizeSummary;
+  descriptives: DescriptiveEstimand;
+  normality_diagnostic: NormalityDiagnosticResult;
+  supporting_parametric_test: SupportingParametricResult;
+}
+
+export interface InferentialAnalysisResponse {
+  coverage: CoverageSummary;
+  reliability_gate: ReliabilityGate;
+  gate_warning: string | null;
+  overall_descriptives: DescriptiveEstimand;
+  models: Record<string, ModelInferenceSummary>;
+  represented_combinations: CellSummary[];
+}

@@ -31,9 +31,25 @@ if __name__ == "__main__":
     run_tests()
     import unittest
     from test_reliability import TestInterRaterReliability
-    suite = unittest.defaultTestLoader.loadTestsFromTestCase(TestInterRaterReliability)
+    from test_inferential import (
+        TestWilcoxonExactness,
+        TestBootstrapEstimands,
+        TestCohensDzNoncentralT,
+        TestNormalityDiagnosticAndTTest,
+        TestCellCoverageAndPipelineIntegration,
+    )
+    loader = unittest.defaultTestLoader
+    suite = unittest.TestSuite([
+        loader.loadTestsFromTestCase(TestInterRaterReliability),
+        loader.loadTestsFromTestCase(TestWilcoxonExactness),
+        loader.loadTestsFromTestCase(TestBootstrapEstimands),
+        loader.loadTestsFromTestCase(TestCohensDzNoncentralT),
+        loader.loadTestsFromTestCase(TestNormalityDiagnosticAndTTest),
+        loader.loadTestsFromTestCase(TestCellCoverageAndPipelineIntegration),
+    ])
     runner = unittest.TextTestRunner(verbosity=2)
     result = runner.run(suite)
     if not result.wasSuccessful():
         sys.exit(1)
     print("All test suites passed successfully!")
+
