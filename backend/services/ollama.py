@@ -16,6 +16,8 @@ async def generate(
     temperature: float = 0.7,
     top_p: float = 0.9,
     max_tokens: int = 512,
+    top_k: int = 40,
+    repeat_penalty: float = 1.1,
     seed: Optional[int] = None,
     system_prompt: Optional[str] = None,
     user_prompt: Optional[str] = None,
@@ -32,6 +34,8 @@ async def generate(
         "temperature": temperature,
         "top_p": top_p,
         "num_predict": max_tokens,
+        "top_k": top_k,
+        "repeat_penalty": repeat_penalty,
     }
     if seed is not None:
         options["seed"] = seed

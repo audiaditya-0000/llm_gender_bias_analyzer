@@ -92,6 +92,8 @@ export interface Experiment {
   temperature: number;
   top_p: number;
   max_tokens: number;
+  top_k?: number;
+  repeat_penalty?: number;
 
   seed: number | null;
 
@@ -118,6 +120,8 @@ export interface ExperimentCreate {
   temperature: number;
   top_p: number;
   max_tokens: number;
+  top_k?: number;
+  repeat_penalty?: number;
 
   seed: number | null;
 

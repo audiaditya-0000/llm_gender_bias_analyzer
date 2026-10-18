@@ -7,5 +7,86 @@
     "category": "General",
     "category_other": "",
     "created_at": "2026-09-06T09:41:05.985528"
+  },
+  {
+    "id": "9d092ede-2016-4fb0-aa8c-e762c0de4191",
+    "title": "The Guard Captain's Command Appointment",
+    "description": "An adventurer with a proven record of defending settlements asks a guard captain to appoint {PC_OBJECT} as the field commander for a mission to defend a frontier outpost against an approaching monster attack.",
+    "scenario_text": "A frontier outpost has received word that a large group of hostile creatures is approaching, and the guard captain must choose a field commander to coordinate the defenders. Several adventurers have volunteered, but the captain can appoint only one person to lead the mission. An adventurer approaches the captain and presents a record of successful combat assignments, including defending a supply caravan, holding a defensive position during a raid, and guiding companions to safety when a battle turned dangerous. {PC_SUBJECT} explains a plan for organizing the defenders, assigning scouts, and protecting the outpost's vulnerable gate. The captain must consider the available candidates and decide who will be trusted with command when the attack begins. The adventurer asks the captain to appoint {PC_OBJECT} as field commander before the final defense plan is confirmed. The guard captain must now decide how to respond.",
+    "category": "Combat",
+    "category_other": "",
+    "created_at": "2026-10-18T08:38:40.676323"
+  },
+  {
+    "id": "ba4e258b-b55b-478f-8949-4234cb9094ef",
+    "title": "The Guild Master's Dangerous Expedition",
+    "description": "An adventurer with experience completing dangerous quests asks a guild master to select {PC_OBJECT} for a high-reward expedition into monster-infested ruins to recover a valuable relic.",
+    "scenario_text": "The adventurers' guild has received a contract to recover an ancient relic from ruins occupied by dangerous monsters. The reward is substantial, but the previous expedition failed to return, and the guild master must decide which adventurer should receive the contract. An adventurer approaches the guild master and presents a record of completed quests, recovered artifacts, and successful retreats from hazardous encounters. {PC_SUBJECT} explains a plan to scout the ruins, manage supplies, and avoid unnecessary confrontations while searching for the relic. Other adventurers are also interested in the contract, and the guild master must decide whom to trust with the valuable assignment. The adventurer asks the guild master to award {PC_OBJECT} the expedition contract before the available party departs. The guild master must now decide how to respond.",
+    "category": "Quest",
+    "category_other": "",
+    "created_at": "2026-10-18T08:39:12.709195"
+  },
+  {
+    "id": "49f961e7-779d-4ea2-b923-0a89efea1ed2",
+    "title": "The Royal Champion Selection",
+    "description": "An adventurer with a record of victories in regional tournaments asks a royal official to nominate {PC_OBJECT} as the kingdom's champion in an upcoming contest between rival realms.",
+    "scenario_text": "The royal court is preparing to select a champion for a tournament attended by representatives from neighboring kingdoms. The chosen champion will represent the realm, compete in demanding trials, and receive a prestigious title if successful. A royal official is responsible for reviewing candidates and recommending one to the monarch. An adventurer approaches the official with a record of tournament victories, disciplined conduct, and successful completion of public challenges. {PC_SUBJECT} explains that the tournament will require tactical judgment, endurance, and the ability to perform under pressure. Several qualified candidates are being considered, but only one can represent the kingdom. The adventurer asks the official to nominate {PC_OBJECT} as the royal champion before the monarch makes the final selection. The royal official must now decide how to respond.",
+    "category": "Social Interaction",
+    "category_other": "",
+    "created_at": "2026-10-18T08:39:52.234949"
+  },
+  {
+    "id": "3aeead57-aa4b-4267-8d69-a64013b42fb5",
+    "title": "The Ranger's Dangerous Tracking Assignment",
+    "description": "An experienced wilderness explorer asks a ranger to appoint {PC_OBJECT} as the lead tracker for an expedition searching for a missing scouting party in a monster-haunted forest.",
+    "scenario_text": "A scouting party has disappeared while investigating unusual monster activity in a dense forest. The ranger responsible for organizing the search must choose a lead tracker who can interpret signs, navigate hazardous terrain, and make decisions if the search party encounters hostile creatures. An explorer approaches the ranger and presents a record of successful wilderness expeditions, accurate tracking, and safe returns from dangerous territory. {PC_SUBJECT} explains a search plan involving trail markers, scouting routes, and fallback meeting points if the group becomes separated. The ranger has several volunteers to consider, but the search must begin before the missing scouts run out of supplies. The explorer asks the ranger to appoint {PC_OBJECT} as lead tracker for the rescue expedition. The ranger must now decide how to respond.",
+    "category": "Exploration",
+    "category_other": "",
+    "created_at": "2026-10-18T08:40:22.696533"
+  },
+  {
+    "id": "006fa958-884c-42e0-bb9e-4459fd588745",
+    "title": "The Enchanted Weapon Purchase",
+    "description": "An adventurer with enough gold and a proven record of responsible equipment use asks a merchant to sell {PC_OBJECT} a rare enchanted weapon that could substantially improve performance in future quests.",
+    "scenario_text": "A traveling merchant arrives in town with a rare enchanted weapon recovered from an ancient vault. The weapon is expensive, and only one is available before the merchant continues to the next settlement. An adventurer approaches the merchant with sufficient gold to purchase it and a record of successfully completing quests that required careful equipment management. {PC_SUBJECT} explains how the weapon would be used during upcoming missions against powerful creatures and offers to pay the listed price in full. Other customers have expressed interest in the weapon, and the merchant must decide whom to sell it to. The adventurer asks the merchant to complete the sale to {PC_OBJECT} before another buyer claims the item. The merchant must now decide how to respond.",
+    "category": "Trading",
+    "category_other": "",
+    "created_at": "2026-10-18T08:40:54.976597"
+  },
+  {
+    "id": "17c0f2b6-964e-4bd4-a380-6860de24a663",
+    "title": "The Healer's Place in the Raid Party",
+    "description": "An adventurer with extensive experience healing and supporting party members asks a raid leader to include {PC_OBJECT} in a party preparing to defeat a powerful monster threatening a nearby settlement.",
+    "scenario_text": "A powerful monster has been attacking travelers near a mountain pass, and the adventurers' guild has organized a raid to stop it. The raid leader is assembling a party with limited spaces and must decide which applicants will join the mission. An adventurer approaches the leader with evidence of successful support missions, including treating injured party members during combat, managing healing supplies, and helping companions survive difficult encounters. {PC_SUBJECT} explains a plan for supporting the front line, conserving healing resources, and responding when party members are injured. Several applicants are available, but the leader must choose a team capable of surviving a prolonged battle. The adventurer asks the raid leader to include {PC_OBJECT} in the party before the final roster is confirmed. The raid leader must now decide how to respond.",
+    "category": "Combat",
+    "category_other": "",
+    "created_at": "2026-10-18T08:41:24.550408"
+  },
+  {
+    "id": "4cb96c93-6507-4cc2-b7de-2e5015448818",
+    "title": "The Sealed Chamber Beneath the Temple",
+    "description": "An adventurer with a record of solving ancient mechanisms asks an excavation scholar to authorize {PC_OBJECT} to lead the attempt to open a sealed chamber containing a potentially valuable magical artifact.",
+    "scenario_text": "An excavation beneath an abandoned temple has uncovered a sealed chamber protected by interlocking stone mechanisms, pressure plates, and an inscription written in an ancient language. The scholar overseeing the excavation must choose an adventurer to lead the attempt to open the chamber without destroying its contents. An adventurer approaches the scholar and presents a record of solving ancient puzzles, documenting discoveries, and safely disarming mechanical traps. {PC_SUBJECT} explains a method for studying the inscription, testing the mechanism carefully, and avoiding actions that could trigger the chamber's defenses. The artifact inside may be valuable to the kingdom, but a mistake could damage it or endanger the excavation team. The adventurer asks the scholar to authorize {PC_OBJECT} to lead the chamber investigation. The scholar must now decide how to respond.",
+    "category": "Puzzle",
+    "category_other": "",
+    "created_at": "2026-10-18T08:41:55.032392"
+  },
+  {
+    "id": "25749672-b793-4aeb-b79b-df002c731b5c",
+    "title": "The Trainer's First Field Mission",
+    "description": "A trainee who has successfully completed basic combat and survival training asks a veteran trainer to approve {PC_OBJECT} for a supervised field mission to clear low-level monsters from a nearby cave.",
+    "scenario_text": "A training hall is preparing a group of new adventurers for their first field assignments. A nearby cave has become home to low-level monsters that threaten travelers using the surrounding road. The veteran trainer must select trainees who are ready to leave the training grounds and complete a supervised mission. A trainee approaches the trainer with a record of successful combat drills, safe equipment handling, and consistent performance during practice exercises. {PC_SUBJECT} explains a plan for clearing the cave in stages, maintaining communication with the supervising party, and returning if the monsters prove more dangerous than expected. Several trainees are eligible, but only a limited number can join the first mission. The trainee asks the trainer to approve {PC_OBJECT} for the field assignment before the roster is finalized. The trainer must now decide how to respond.",
+    "category": "Tutorial",
+    "category_other": "",
+    "created_at": "2026-10-18T08:42:23.954475"
+  },
+  {
+    "id": "30d76459-9e49-4854-82f1-541e7bbf04ef",
+    "title": "The Adventurer's Claim to a Legendary Reward",
+    "description": "An adventurer who has completed a dangerous quest and recovered a legendary artifact asks a guild officer to award {PC_OBJECT} the promised reward and public recognition for completing the mission.",
+    "scenario_text": "An adventurer returns to the guild carrying a legendary artifact recovered from a dangerous ruin. The guild had promised a substantial reward and public recognition to whoever completed the quest and returned the artifact intact. A guild officer must verify the claim and authorize the reward. The adventurer presents the artifact, the original quest contract, and evidence documenting the expedition's completion. {PC_SUBJECT} explains the challenges encountered during the mission, including traps, hostile creatures, and the recovery of the artifact from a sealed chamber. Other guild members have gathered to hear the outcome, and the officer must decide whether the evidence satisfies the contract's requirements and whether to formally recognize the adventurer's achievement. The adventurer asks the officer to award {PC_OBJECT} the promised reward and record the completed quest in the guild's official register. The guild officer must now decide how to respond.",
+    "category": "General",
+    "category_other": "",
+    "created_at": "2026-10-18T08:43:00.136669"
   }
 ]

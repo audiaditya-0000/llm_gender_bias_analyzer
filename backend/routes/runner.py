@@ -105,6 +105,8 @@ async def _run_experiment(experiment_id: str):
                     temperature=experiment.get("temperature", 0.7),
                     top_p=experiment.get("top_p", 0.9),
                     max_tokens=experiment.get("max_tokens", 512),
+                    top_k=experiment.get("top_k") if experiment.get("top_k") is not None else 40,
+                    repeat_penalty=experiment.get("repeat_penalty") if experiment.get("repeat_penalty") is not None else 1.1,
                     seed=current_seed,
                 )
 
@@ -122,6 +124,11 @@ async def _run_experiment(experiment_id: str):
                     scaffold_prompt=scaffold_prompt,
                     scenario_prompt=formatted_scenario,
                     generated_response=generated,
+                    top_p=experiment.get("top_p", 0.9),
+                    top_k=experiment.get("top_k", 40),
+                    repeat_penalty=experiment.get("repeat_penalty", 1.1),
+                    max_tokens=experiment.get("max_tokens", 512),
+                    tag=experiment.get("tag"),
                 )
                 responses_batch.append(response.model_dump())
 
@@ -140,6 +147,11 @@ async def _run_experiment(experiment_id: str):
                     scaffold_prompt=scaffold_prompt,
                     scenario_prompt=formatted_scenario,
                     generated_response=f"[ERROR] {str(e)}",
+                    top_p=experiment.get("top_p", 0.9),
+                    top_k=experiment.get("top_k", 40),
+                    repeat_penalty=experiment.get("repeat_penalty", 1.1),
+                    max_tokens=experiment.get("max_tokens", 512),
+                    tag=experiment.get("tag"),
                 )
                 responses_batch.append(error_response.model_dump())
 

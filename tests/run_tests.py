@@ -38,6 +38,16 @@ if __name__ == "__main__":
         TestNormalityDiagnosticAndTTest,
         TestCellCoverageAndPipelineIntegration,
     )
+    from test_generation_parameters import (
+        TestOllamaGenerationRequestPayload,
+        TestRunnerGenerationPath,
+        TestPydanticModelDefaults,
+    )
+    from test_scenarios_and_models import (
+        TestCanonicalModelSupport,
+        TestScaffoldGeneralization,
+        TestScenarioInventoryAndSubstitution,
+    )
     loader = unittest.defaultTestLoader
     suite = unittest.TestSuite([
         loader.loadTestsFromTestCase(TestInterRaterReliability),
@@ -46,6 +56,12 @@ if __name__ == "__main__":
         loader.loadTestsFromTestCase(TestCohensDzNoncentralT),
         loader.loadTestsFromTestCase(TestNormalityDiagnosticAndTTest),
         loader.loadTestsFromTestCase(TestCellCoverageAndPipelineIntegration),
+        loader.loadTestsFromTestCase(TestOllamaGenerationRequestPayload),
+        loader.loadTestsFromTestCase(TestRunnerGenerationPath),
+        loader.loadTestsFromTestCase(TestPydanticModelDefaults),
+        loader.loadTestsFromTestCase(TestCanonicalModelSupport),
+        loader.loadTestsFromTestCase(TestScaffoldGeneralization),
+        loader.loadTestsFromTestCase(TestScenarioInventoryAndSubstitution),
     ])
     runner = unittest.TextTestRunner(verbosity=2)
     result = runner.run(suite)

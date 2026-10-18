@@ -85,9 +85,12 @@ class ExperimentCreate(BaseModel):
     temperature: float = 0.7
     top_p: float = 0.9
     max_tokens: int = 512
+    top_k: int = 40
+    repeat_penalty: float = 1.1
     seed: Optional[int] = None
     num_replicates: int = 20
     swap_type: Optional[str] = "npc"
+    tag: Optional[str] = None
 
 
 class Experiment(BaseModel):
@@ -98,10 +101,13 @@ class Experiment(BaseModel):
     temperature: float = 0.7
     top_p: float = 0.9
     max_tokens: int = 512
+    top_k: int = 40
+    repeat_penalty: float = 1.1
     seed: Optional[int] = None
     num_replicates: int = 20
     swap_type: Optional[str] = "npc"
     status: str = "configured"  # configured, running, completed, failed
+    tag: Optional[str] = None
     created_at: str = Field(
         default_factory=lambda: datetime.utcnow().isoformat()
     )
@@ -129,6 +135,11 @@ class ExperimentResponse(BaseModel):
     system_prompt: Optional[str] = None
     user_prompt: Optional[str] = None
     generated_response: str
+    top_p: Optional[float] = 0.9
+    top_k: Optional[int] = 40
+    repeat_penalty: Optional[float] = 1.1
+    max_tokens: Optional[int] = 512
+    tag: Optional[str] = None
 
     @model_validator(mode="before")
     @classmethod

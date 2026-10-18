@@ -1,0 +1,84 @@
+{
+  "total_responses": 24,
+  "expected_responses": 24,
+  "missing_or_empty": [],
+  "errors_detected": [],
+  "unresolved_pc_tokens": [],
+  "prompt_leakage": [],
+  "unexpected_models": [],
+  "unexpected_scaffolds": [],
+  "parameter_mismatches": [],
+  "pair_id_integrity": {
+    "valid_pairs_count": 12,
+    "broken_pairs": []
+  },
+  "coverage": {
+    "llama3.2_count": 12,
+    "mistral_count": 12,
+    "male_original_count": 12,
+    "female_swapped_count": 12,
+    "cells_covered": [
+      [
+        "006fa958-884c-42e0-bb9e-4459fd588745",
+        "a9714fe2-ca9f-4d86-bf87-4c1046319718",
+        "llama3.2:latest"
+      ],
+      [
+        "006fa958-884c-42e0-bb9e-4459fd588745",
+        "ad07cd93-7943-49be-8b36-849e882ffd7b",
+        "mistral:latest"
+      ],
+      [
+        "006fa958-884c-42e0-bb9e-4459fd588745",
+        "a9714fe2-ca9f-4d86-bf87-4c1046319718",
+        "mistral:latest"
+      ],
+      [
+        "74ea8c66-f108-4054-8a1e-a6f9b1ffae62",
+        "ad07cd93-7943-49be-8b36-849e882ffd7b",
+        "mistral:latest"
+      ],
+      [
+        "74ea8c66-f108-4054-8a1e-a6f9b1ffae62",
+        "ad07cd93-7943-49be-8b36-849e882ffd7b",
+        "llama3.2:latest"
+      ],
+      [
+        "74ea8c66-f108-4054-8a1e-a6f9b1ffae62",
+        "a9714fe2-ca9f-4d86-bf87-4c1046319718",
+        "mistral:latest"
+      ],
+      [
+        "74ea8c66-f108-4054-8a1e-a6f9b1ffae62",
+        "a9714fe2-ca9f-4d86-bf87-4c1046319718",
+        "llama3.2:latest"
+      ],
+      [
+        "74ea8c66-f108-4054-8a1e-a6f9b1ffae62",
+        "72859fca-c908-4f0d-9099-7dd4ee53b839",
+        "llama3.2:latest"
+      ],
+      [
+        "74ea8c66-f108-4054-8a1e-a6f9b1ffae62",
+        "72859fca-c908-4f0d-9099-7dd4ee53b839",
+        "mistral:latest"
+      ],
+      [
+        "006fa958-884c-42e0-bb9e-4459fd588745",
+        "72859fca-c908-4f0d-9099-7dd4ee53b839",
+        "mistral:latest"
+      ],
+      [
+        "006fa958-884c-42e0-bb9e-4459fd588745",
+        "72859fca-c908-4f0d-9099-7dd4ee53b839",
+        "llama3.2:latest"
+      ],
+      [
+        "006fa958-884c-42e0-bb9e-4459fd588745",
+        "ad07cd93-7943-49be-8b36-849e882ffd7b",
+        "llama3.2:latest"
+      ]
+    ],
+    "cells_covered_count": 12
+  }
+}
