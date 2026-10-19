@@ -7,6 +7,7 @@ import {
   ChevronLeft,
   SkipForward,
   UserRound,
+  Users,
   Info,
   ScrollText,
 } from "lucide-react";
@@ -202,6 +203,7 @@ export default function BlindCoding() {
   const current = pairs[currentIndex];
   const codedCount = pairs.filter((p) => p.is_coded).length;
   const total = pairs.length;
+  const overlapCount = pairs.filter((p) => p.is_overlap).length;
   const selectedCoder = CODERS.find((c) => c.id === coderId)?.name || "Coder 1";
 
   return (
@@ -218,13 +220,36 @@ export default function BlindCoding() {
           </p>
         </div>
 
-        {/* Current coder indicator */}
-        <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-surface-800/70 border border-surface-700/50 self-start sm:self-auto">
-          <UserRound size={16} className="text-accent-400" />
-          <div>
-            <div className="text-[10px] uppercase tracking-wider text-surface-500">Current Coder</div>
-            <div className="text-sm font-semibold text-surface-200">{selectedCoder}</div>
-          </div>
+        {/* Multi-Coder Switch Toggle */}
+        <div className="flex items-center p-1 bg-surface-900/90 rounded-2xl border border-surface-700/60 shadow-lg">
+          {CODERS.map((coder) => {
+            const isActive = coderId === coder.id;
+            const isCoder1 = coder.id === "coder_1";
+            return (
+              <button
+                key={coder.id}
+                type="button"
+                onClick={() => handleCoderChange(coder.id)}
+                className={`flex items-center gap-2 px-5 py-2 rounded-xl text-sm font-semibold transition-all duration-200 ${
+                  isActive
+                    ? isCoder1
+                      ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md shadow-emerald-500/25"
+                      : "bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-md shadow-indigo-500/25"
+                    : "text-surface-400 hover:text-surface-200 hover:bg-surface-800/50"
+                }`}
+              >
+                <UserRound size={15} />
+                <span>{coder.name}</span>
+                {isActive && (
+                  <span
+                    className={`w-2 h-2 rounded-full ${
+                      isCoder1 ? "bg-emerald-300" : "bg-purple-300"
+                    } animate-pulse`}
+                  />
+                )}
+              </button>
+            );
+          })}
         </div>
       </div>
 
@@ -232,23 +257,15 @@ export default function BlindCoding() {
       <div className="glass-card-static p-4 mb-6 space-y-4">
         <div className="flex flex-wrap gap-4 items-end justify-between">
           <div className="flex flex-wrap gap-4">
-            {/* Coder Selection */}
-            <div>
-              <label className="input-label !mb-1 flex items-center gap-1">
-                <UserRound size={13} />
-                Coder
-              </label>
-              <select
-                className="input-field py-1.5 text-sm min-w-[150px]"
-                value={coderId}
-                onChange={(e) => handleCoderChange(e.target.value)}
-              >
-                {CODERS.map((coder) => (
-                  <option key={coder.id} value={coder.id}>
-                    {coder.name}
-                  </option>
-                ))}
-              </select>
+            {/* Active Queue Info Pill */}
+            <div className="flex flex-col justify-end">
+              <span className="text-[11px] uppercase tracking-wider text-surface-400 font-semibold mb-1">
+                Active Queue
+              </span>
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-surface-800/80 border border-surface-700 text-xs text-surface-200 font-medium">
+                <span className="w-2 h-2 rounded-full bg-accent-400" />
+                {selectedCoder} Workload ({total} Pairs)
+              </div>
             </div>
 
             {/* Experiment Selection */}
@@ -283,13 +300,18 @@ export default function BlindCoding() {
             </div>
           </div>
 
-          {/* Progress */}
+          {/* Progress & Overlap Stats */}
           {total > 0 && (
-            <div className="text-right">
-              <div className="text-sm font-semibold text-surface-200">
-                {codedCount} / {total} Pairs Coded
+            <div className="text-right flex flex-col items-end">
+              <div className="flex items-center gap-3 text-xs">
+                <span className="text-surface-400">
+                  {overlapCount} Overlap Pairs (20%)
+                </span>
+                <span className="font-semibold text-surface-200">
+                  {codedCount} / {total} Pairs Coded
+                </span>
               </div>
-              <div className="w-48 h-2 bg-surface-700 rounded-full mt-1.5 overflow-hidden">
+              <div className="w-56 h-2 bg-surface-700 rounded-full mt-1.5 overflow-hidden">
                 <div
                   className="h-full bg-emerald-500 transition-all duration-300"
                   style={{ width: `${total ? (codedCount / total) * 100 : 0}%` }}
@@ -303,8 +325,8 @@ export default function BlindCoding() {
         <div className="flex items-start gap-2 px-3 py-2 rounded-lg bg-accent-500/5 border border-accent-500/10">
           <Info size={15} className="text-accent-400 mt-0.5 shrink-0" />
           <p className="text-xs text-surface-400 leading-relaxed">
-            Version A and Version B are randomly assigned per pair. Evaluate each version independently based on
-            neutrosophic truth, indeterminacy, and falsity regarding gender bias or stereotype.
+            Responses are evenly split between Coder 1 and Coder 2, with a 20% dual-coded overlap pool for inter-rater reliability.
+            Condition labels and model tags remain strictly blinded. Evaluate each version independently on Neutrosophic Truth (T), Indeterminacy (I), and Falsity (F).
           </p>
         </div>
       </div>
@@ -332,7 +354,19 @@ export default function BlindCoding() {
               <span className="text-xs px-2 py-0.5 rounded bg-surface-700 text-surface-300 font-mono">
                 Replicate #{current?.replicate_number}
               </span>
-              <span className="text-xs text-surface-400 font-mono">{current?.model}</span>
+
+              {/* Overlap Pool vs Exclusive Queue Badge */}
+              {current?.is_overlap ? (
+                <span className="flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-purple-500/15 text-purple-300 border border-purple-500/30">
+                  <Users size={12} className="text-purple-400" />
+                  20% Overlap Pool (Dual-Coded)
+                </span>
+              ) : (
+                <span className="flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-500/15 text-blue-300 border border-blue-500/30">
+                  <UserRound size={12} className="text-blue-400" />
+                  {selectedCoder} Queue
+                </span>
+              )}
             </div>
 
             <div className="flex items-center gap-2">
@@ -344,14 +378,21 @@ export default function BlindCoding() {
             </div>
           </div>
 
-          {/* Scenario Context Box */}
-          {current?.scenario_prompt && (
+          {/* Scenario Context Box (Gender-Neutral Context) */}
+          {(current?.scenario_title || current?.scenario_description || current?.scenario_prompt) && (
             <div className="glass-card p-4 border border-surface-700/40">
-              <div className="flex items-center gap-2 text-xs font-semibold text-surface-400 mb-2 uppercase tracking-wider">
-                <ScrollText size={14} className="text-amber-400" /> Scenario Context
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2 text-xs font-semibold text-surface-400 uppercase tracking-wider">
+                  <ScrollText size={14} className="text-amber-400" /> Scenario Context
+                </div>
+                {current.scenario_title && (
+                  <span className="text-xs font-medium text-amber-300/90 bg-amber-500/10 px-2.5 py-0.5 rounded-full border border-amber-500/20">
+                    {current.scenario_title}
+                  </span>
+                )}
               </div>
-              <div className="text-xs font-mono text-surface-300 whitespace-pre-wrap max-h-28 overflow-y-auto pr-2 bg-surface-900/60 p-3 rounded-lg border border-surface-800">
-                {current.scenario_prompt}
+              <div className="text-xs text-surface-200 whitespace-pre-wrap leading-relaxed max-h-28 overflow-y-auto pr-2 bg-surface-900/60 p-3 rounded-lg border border-surface-800">
+                {current.scenario_description || current.scenario_prompt}
               </div>
             </div>
           )}

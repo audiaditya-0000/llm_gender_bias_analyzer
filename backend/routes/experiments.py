@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException
 from models import Experiment, ExperimentCreate
-from storage import read_json, write_json, find_by_id, delete_by_id
+from storage import read_json, write_json, find_by_id, delete_by_id, upsert_record
 
 router = APIRouter(prefix="/api/experiments", tags=["experiments"])
 
@@ -26,9 +26,7 @@ def get_experiment(experiment_id: str):
 def create_experiment(payload: ExperimentCreate):
     """Create a new experiment configuration."""
     experiment = Experiment(**payload.model_dump())
-    data = read_json(FILENAME)
-    data.append(experiment.model_dump())
-    write_json(FILENAME, data)
+    upsert_record(FILENAME, experiment.model_dump())
     return experiment.model_dump()
 
 

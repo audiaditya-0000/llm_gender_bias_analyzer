@@ -16,7 +16,7 @@ import uuid
 from fastapi import APIRouter, HTTPException
 
 from models import ExperimentResponse
-from storage import read_json, write_json, append_json, find_by_id
+from storage import read_json, write_json, append_json, find_by_id, update_by_id
 from services.ollama import generate
 from services.gender_swap import render_scenario
 
@@ -30,13 +30,8 @@ SCENARIOS_FILE = "scenarios.json"
 _progress: dict[str, dict] = {}
 
 def _update_status(experiment_id: str, status: str):
-    """Update experiment status in experiments.json."""
-    data = read_json(EXPERIMENTS_FILE)
-    for i, item in enumerate(data):
-        if item.get("id") == experiment_id:
-            data[i]["status"] = status
-            break
-    write_json(EXPERIMENTS_FILE, data)
+    """Update experiment status in experiments.json and Neon database."""
+    update_by_id(EXPERIMENTS_FILE, experiment_id, {"status": status})
 
 async def _run_experiment(experiment_id: str):
     """
@@ -179,11 +174,19 @@ async def start_experiment(body: dict):
     if experiment.get("status") == "running":
         raise HTTPException(status_code=409, detail="Experiment is already running")
 
+    _update_status(experiment_id, "running")
+    _progress[experiment_id] = {
+        "completed": 0,
+        "total": 2 * experiment.get("num_replicates", 20),
+        "status": "running",
+    }
+
     asyncio.create_task(_run_experiment(experiment_id))
 
     return {
         "message": "Experiment started",
         "experiment_id": experiment_id,
+        "status": "running",
     }
 
 @router.get("/status/{experiment_id}")

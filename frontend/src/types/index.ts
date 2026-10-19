@@ -274,10 +274,14 @@ export interface BlindPair {
   pair_id: string;
   experiment_id: string;
   scenario_id: string;
-  model: string;
+  scenario_title?: string;
+  scenario_description?: string;
+  model?: string;
   replicate_number: number;
   scenario_prompt: string;
   scaffold_prompt: string;
+  is_overlap?: boolean;
+  assigned_coders?: string[];
   version_a: BlindVersion;
   version_b: BlindVersion | null;
   is_coded: boolean;
@@ -287,6 +291,7 @@ export interface BlindPairsResult {
   total: number;
   coded: number;
   remaining: number;
+  overlap_count?: number;
   coder_id?: string | null;
   data: BlindPair[];
 }

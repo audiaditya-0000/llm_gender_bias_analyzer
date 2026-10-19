@@ -141,6 +141,12 @@ def bulk_delete_responses(
 
     if experiment_id:
         data = [r for r in data if r.get("experiment_id") != experiment_id]
+        from database import is_db_configured, db_delete_where
+        if is_db_configured():
+            try:
+                db_delete_where("responses", "experiment_id = %s", (experiment_id,))
+            except Exception:
+                pass
     else:
         data = []
 

@@ -40,6 +40,18 @@ app.include_router(export.router)
 app.include_router(ollama.router)
 
 
+@app.on_event("startup")
+def on_startup():
+    from database import init_db, migrate_local_json_to_db, is_db_configured
+    if is_db_configured():
+        init_db()
+        migrate_local_json_to_db()
+
+
 @app.get("/api/health")
 def health():
-    return {"status": "ok"}
+    from database import is_db_configured
+    return {
+        "status": "ok",
+        "database": "neon_postgresql" if is_db_configured() else "local_json"
+    }

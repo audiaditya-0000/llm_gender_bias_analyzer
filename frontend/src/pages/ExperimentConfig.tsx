@@ -30,7 +30,6 @@ export default function ExperimentConfig() {
 
   async function loadAll() {
     try {
-      setLoading(true);
       const [expData, scenData, scaffData] = await Promise.all([
         experimentsApi.list(),
         scenariosApi.list(),
@@ -84,7 +83,10 @@ export default function ExperimentConfig() {
         ...form,
         seed: seedEnabled ? form.seed : null,
       };
-      await experimentsApi.create(payload);
+      const created = await experimentsApi.create(payload);
+      if (created && created.id) {
+        setExperiments((prev) => [created, ...prev]);
+      }
       loadAll();
     } catch (err) {
       console.error("Failed to save experiment:", err);
@@ -94,10 +96,12 @@ export default function ExperimentConfig() {
   async function handleDelete(id: string) {
     if (!confirm("Delete this experiment configuration?")) return;
     try {
+      setExperiments((prev) => prev.filter((e) => e.id !== id));
       await experimentsApi.delete(id);
       loadAll();
     } catch (err) {
       console.error("Failed to delete:", err);
+      loadAll();
     }
   }
 
@@ -109,7 +113,7 @@ export default function ExperimentConfig() {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + " " + sizes[i];
   }
 
-  if (loading) {
+  if (loading && experiments.length === 0) {
     return <div className="text-center py-20 text-surface-500">Loading...</div>;
   }
 

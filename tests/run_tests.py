@@ -48,6 +48,7 @@ if __name__ == "__main__":
         TestScaffoldGeneralization,
         TestScenarioInventoryAndSubstitution,
     )
+    from test_multi_coder_queue import TestMultiCoderQueuePartitioning
     loader = unittest.defaultTestLoader
     suite = unittest.TestSuite([
         loader.loadTestsFromTestCase(TestInterRaterReliability),
@@ -62,6 +63,7 @@ if __name__ == "__main__":
         loader.loadTestsFromTestCase(TestCanonicalModelSupport),
         loader.loadTestsFromTestCase(TestScaffoldGeneralization),
         loader.loadTestsFromTestCase(TestScenarioInventoryAndSubstitution),
+        loader.loadTestsFromTestCase(TestMultiCoderQueuePartitioning),
     ])
     runner = unittest.TextTestRunner(verbosity=2)
     result = runner.run(suite)

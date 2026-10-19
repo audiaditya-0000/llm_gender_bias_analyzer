@@ -40,7 +40,6 @@ export default function ExperimentRunner() {
 
   async function loadAll() {
     try {
-      setLoading(true);
       const [expData, scenData, scaffData] = await Promise.all([
         experimentsApi.list(),
         scenariosApi.list(),
@@ -50,13 +49,15 @@ export default function ExperimentRunner() {
       setScenarios(scenData);
       setScaffolds(scaffData);
       
-      // Load initial progress for all
+      // Load initial progress for all running experiments
       expData.forEach(async (exp) => {
-        try {
-          const res = await runnerApi.status(exp.id);
-          setProgressData((prev) => ({ ...prev, [exp.id]: res }));
-        } catch (err) {
-          // Ignore
+        if (exp.status === "running") {
+          try {
+            const res = await runnerApi.status(exp.id);
+            setProgressData((prev) => ({ ...prev, [exp.id]: res }));
+          } catch (err) {
+            // Ignore
+          }
         }
       });
     } catch (err) {
@@ -68,10 +69,22 @@ export default function ExperimentRunner() {
 
   async function handleStart(id: string) {
     try {
+      // Optimistically update React state immediately so Running badge and progress appear instantly
+      setExperiments((prev) =>
+        prev.map((e) => (e.id === id ? { ...e, status: "running" } : e))
+      );
+      const targetExp = experiments.find((e) => e.id === id);
+      const totalCalls = targetExp ? targetExp.num_replicates * 2 : 40;
+      setProgressData((prev) => ({
+        ...prev,
+        [id]: { completed: 0, total: totalCalls, status: "running" },
+      }));
+
       await runnerApi.start(id);
-      loadAll(); // Refresh to update status to 'running'
+      loadAll();
     } catch (err: any) {
       alert(`Failed to start experiment: ${err.message}`);
+      loadAll();
     }
   }
 
