@@ -134,7 +134,9 @@ def extract_cell_data(experiment_id: Optional[str] = None) -> dict:
                 n_m = len(male_scores)
                 mean_f = (sum(female_scores) / n_f) if n_f > 0 else None
                 mean_m = (sum(male_scores) / n_m) if n_m > 0 else None
-                diff = (mean_f - mean_m) if (mean_f is not None and mean_m is not None) else None
+                rounded_f = round(mean_f, 4) if mean_f is not None else None
+                rounded_m = round(mean_m, 4) if mean_m is not None else None
+                diff = round(rounded_f - rounded_m, 4) if (rounded_f is not None and rounded_m is not None) else None
 
                 combo_record = {
                     "scenario_id": scen_id,
@@ -145,9 +147,9 @@ def extract_cell_data(experiment_id: Optional[str] = None) -> dict:
                     "total_responses": len(resp_list),
                     "n_female": n_f,
                     "n_male": n_m,
-                    "mean_female_T": round(mean_f, 4) if mean_f is not None else None,
-                    "mean_male_T": round(mean_m, 4) if mean_m is not None else None,
-                    "signed_difference": round(diff, 4) if diff is not None else None,
+                    "mean_female_T": rounded_f,
+                    "mean_male_T": rounded_m,
+                    "signed_difference": diff,
                     "is_eligible": (n_f > 0 and n_m > 0),
                     "is_empty": len(resp_list) == 0,
                 }
@@ -211,22 +213,31 @@ def compute_exact_wilcoxon(diffs: list[float]) -> dict:
     W_neg = float(np.sum(ranks[signs < 0]))
     S = float(np.sum(ranks))  # Total sum of ranks: n_r*(n_r+1)/2
 
-    # Exhaustive sign enumeration for exact distribution
-    num_comb = 1 << n_r
-    expected_W = S / 2.0
-    dev_obs = abs(W_pos - expected_W)
-    extreme_count = 0
+    # Exhaustive sign enumeration for exact distribution (n_r <= 15) or scipy for large N
+    if n_r <= 15:
+        num_comb = 1 << n_r
+        expected_W = S / 2.0
+        dev_obs = abs(W_pos - expected_W)
+        extreme_count = 0
 
-    for i in range(num_comb):
-        w_sim = 0.0
-        for j in range(n_r):
-            if (i >> j) & 1:
-                w_sim += ranks[j]
-        dev_sim = abs(w_sim - expected_W)
-        if dev_sim >= dev_obs - 1e-12:
-            extreme_count += 1
+        for i in range(num_comb):
+            w_sim = 0.0
+            for j in range(n_r):
+                if (i >> j) & 1:
+                    w_sim += ranks[j]
+            dev_sim = abs(w_sim - expected_W)
+            if dev_sim >= dev_obs - 1e-12:
+                extreme_count += 1
 
-    p_raw = float(extreme_count / num_comb)
+        p_raw = float(extreme_count / num_comb)
+        method = "exact_sign_enumeration_with_zero_removal"
+        perms = num_comb
+    else:
+        w_res = stats.wilcoxon(nonzero, alternative="two-sided")
+        p_raw = float(w_res.pvalue)
+        method = "scipy_wilcoxon_with_zero_removal"
+        perms = None
+
     p_adj = float(min(1.0, p_raw * BONFERRONI_FAMILY_SIZE))
     significant = bool(p_adj < BONFERRONI_ALPHA)
 
@@ -246,9 +257,9 @@ def compute_exact_wilcoxon(diffs: list[float]) -> dict:
         "p_adjusted": round(p_adj, 6),
         "alpha_adjusted": BONFERRONI_ALPHA,
         "significant": significant,
-        "method": "exact_sign_enumeration_with_zero_removal",
+        "method": method,
         "rank_biserial": round(r_rb, 4),
-        "permutations_evaluated": num_comb,
+        "permutations_evaluated": perms,
     }
 
 

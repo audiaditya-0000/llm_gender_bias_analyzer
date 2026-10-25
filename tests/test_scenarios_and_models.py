@@ -118,12 +118,12 @@ class TestScenarioInventoryAndSubstitution(unittest.TestCase):
     def test_scenario_inventory_accounting(self):
         """
         Verify current inventory count.
-        All 10 scenarios are implemented in data/scenarios.json.
+        Supports 10 baseline scenarios or 20 (baseline + gender-salient expansion).
         """
-        self.assertEqual(
+        self.assertIn(
             len(self.scenarios),
-            10,
-            "All 10 scenarios must be implemented in data/scenarios.json",
+            [10, 20],
+            "Scenario inventory must be 10 (baseline) or 20 (baseline + salient expansion)",
         )
         implemented_ids = [s.get("id") for s in self.scenarios]
         self.assertIn("74ea8c66-f108-4054-8a1e-a6f9b1ffae62", implemented_ids)
