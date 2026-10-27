@@ -1037,7 +1037,7 @@
     "created_at": "2026-10-25T15:45:50.285558"
   },
   {
-    "id": "85661564-0cdc-46ea-8ba0-3a0d9972e7a5",
+    "id": "95c68e94-44bd-4ac6-a1d6-6f96d791c8a5",
     "scenario_id": "c1f7a012-9214-4b51-9331-50e41b7f0001",
     "scaffold_id": "a9714fe2-ca9f-4d86-bf87-4c1046319718",
     "model": "mistral:latest",
@@ -1049,7 +1049,7 @@
     "seed": 42,
     "num_replicates": 20,
     "swap_type": "npc",
-    "status": "configured",
+    "status": "completed",
     "tag": "gender_salient_pack",
     "created_at": "2026-10-25T15:06:54.756445"
   },
@@ -1071,7 +1071,7 @@
     "created_at": "2026-10-25T15:45:50.285558"
   },
   {
-    "id": "cc0c2e58-654e-4022-8cce-bb87615918c7",
+    "id": "e07266e3-e531-4a9b-b1d1-b2a5f65c892d",
     "scenario_id": "c1f7a012-9214-4b51-9331-50e41b7f0001",
     "scaffold_id": "72859fca-c908-4f0d-9099-7dd4ee53b839",
     "model": "mistral:latest",
@@ -1083,7 +1083,7 @@
     "seed": 42,
     "num_replicates": 20,
     "swap_type": "npc",
-    "status": "configured",
+    "status": "completed",
     "tag": "gender_salient_pack",
     "created_at": "2026-10-25T15:06:54.756445"
   },
@@ -1105,7 +1105,7 @@
     "created_at": "2026-10-25T15:45:50.285558"
   },
   {
-    "id": "d9c540ec-3643-4923-89e5-b115620e1a7f",
+    "id": "88f535dc-82da-4799-ac09-29204a132055",
     "scenario_id": "c1f7a012-9214-4b51-9331-50e41b7f0001",
     "scaffold_id": "ad07cd93-7943-49be-8b36-849e882ffd7b",
     "model": "mistral:latest",
@@ -1117,7 +1117,7 @@
     "seed": 42,
     "num_replicates": 20,
     "swap_type": "npc",
-    "status": "configured",
+    "status": "completed",
     "tag": "gender_salient_pack",
     "created_at": "2026-10-25T15:06:54.756445"
   },
@@ -1139,7 +1139,7 @@
     "created_at": "2026-10-25T15:45:50.285558"
   },
   {
-    "id": "e54e5583-573a-4f35-86c4-f520fc6556c3",
+    "id": "2295be68-4161-4ccc-803e-5fffbbce7f7c",
     "scenario_id": "c1f7a012-9214-4b51-9331-50e41b7f0002",
     "scaffold_id": "a9714fe2-ca9f-4d86-bf87-4c1046319718",
     "model": "mistral:latest",
@@ -1151,7 +1151,7 @@
     "seed": 42,
     "num_replicates": 20,
     "swap_type": "npc",
-    "status": "configured",
+    "status": "completed",
     "tag": "gender_salient_pack",
     "created_at": "2026-10-25T15:06:54.756445"
   },
@@ -1173,7 +1173,7 @@
     "created_at": "2026-10-25T15:45:50.285558"
   },
   {
-    "id": "9ec67b61-d4c2-48c1-b62d-f1a591e1d9fa",
+    "id": "b8768b9a-d1a0-400f-8309-9be7f58d587a",
     "scenario_id": "c1f7a012-9214-4b51-9331-50e41b7f0002",
     "scaffold_id": "72859fca-c908-4f0d-9099-7dd4ee53b839",
     "model": "mistral:latest",
@@ -1185,7 +1185,7 @@
     "seed": 42,
     "num_replicates": 20,
     "swap_type": "npc",
-    "status": "configured",
+    "status": "completed",
     "tag": "gender_salient_pack",
     "created_at": "2026-10-25T15:06:54.756445"
   },
@@ -1207,7 +1207,7 @@
     "created_at": "2026-10-25T15:45:50.285558"
   },
   {
-    "id": "bc17e7aa-12a0-407b-8e99-3e401c776d5e",
+    "id": "6bc872ea-8a45-4368-971b-f1f4a8d6cfe8",
     "scenario_id": "c1f7a012-9214-4b51-9331-50e41b7f0002",
     "scaffold_id": "ad07cd93-7943-49be-8b36-849e882ffd7b",
     "model": "mistral:latest",
@@ -1219,7 +1219,7 @@
     "seed": 42,
     "num_replicates": 20,
     "swap_type": "npc",
-    "status": "configured",
+    "status": "completed",
     "tag": "gender_salient_pack",
     "created_at": "2026-10-25T15:06:54.756445"
   },
@@ -1241,7 +1241,7 @@
     "created_at": "2026-10-25T15:45:50.285558"
   },
   {
-    "id": "ca4d62c4-18d4-4f32-ad53-07895ab545c5",
+    "id": "4af79288-ed92-4a03-9282-3dfe287ae7f4",
     "scenario_id": "c1f7a012-9214-4b51-9331-50e41b7f0003",
     "scaffold_id": "a9714fe2-ca9f-4d86-bf87-4c1046319718",
     "model": "mistral:latest",
@@ -1253,7 +1253,7 @@
     "seed": 42,
     "num_replicates": 20,
     "swap_type": "npc",
-    "status": "configured",
+    "status": "completed",
     "tag": "gender_salient_pack",
     "created_at": "2026-10-25T15:06:54.756445"
   },
@@ -1275,7 +1275,7 @@
     "created_at": "2026-10-25T15:45:50.285558"
   },
   {
-    "id": "c659da0c-a2ec-48d2-a8d1-2ef9f2130a54",
+    "id": "0f148289-0b45-4a69-96a0-b5642be1128a",
     "scenario_id": "c1f7a012-9214-4b51-9331-50e41b7f0003",
     "scaffold_id": "72859fca-c908-4f0d-9099-7dd4ee53b839",
     "model": "mistral:latest",
@@ -1287,7 +1287,7 @@
     "seed": 42,
     "num_replicates": 20,
     "swap_type": "npc",
-    "status": "configured",
+    "status": "completed",
     "tag": "gender_salient_pack",
     "created_at": "2026-10-25T15:06:54.756445"
   },
@@ -1309,7 +1309,7 @@
     "created_at": "2026-10-25T15:45:50.285558"
   },
   {
-    "id": "61e2b70c-adf6-4aa0-be22-cf0902abcf81",
+    "id": "53f8f823-71ec-4631-848d-2331a96ef8b7",
     "scenario_id": "c1f7a012-9214-4b51-9331-50e41b7f0003",
     "scaffold_id": "ad07cd93-7943-49be-8b36-849e882ffd7b",
     "model": "mistral:latest",
@@ -1321,12 +1321,12 @@
     "seed": 42,
     "num_replicates": 20,
     "swap_type": "npc",
-    "status": "configured",
+    "status": "completed",
     "tag": "gender_salient_pack",
     "created_at": "2026-10-25T15:06:54.756445"
   },
   {
-    "id": "87b2dbf4-b1ff-42fc-bec8-ef4d19f1148d",
+    "id": "de9244d0-90a8-4161-a86c-65118bb2d0ff",
     "scenario_id": "c1f7a012-9214-4b51-9331-50e41b7f0004",
     "scaffold_id": "a9714fe2-ca9f-4d86-bf87-4c1046319718",
     "model": "llama3.2:latest",
@@ -1343,7 +1343,7 @@
     "created_at": "2026-10-25T15:06:54.756445"
   },
   {
-    "id": "68ff6411-c790-4042-a2d7-ca31e5f83014",
+    "id": "f748b68f-f5d0-4136-8362-10b6f0acb952",
     "scenario_id": "c1f7a012-9214-4b51-9331-50e41b7f0004",
     "scaffold_id": "a9714fe2-ca9f-4d86-bf87-4c1046319718",
     "model": "mistral:latest",
@@ -1355,12 +1355,12 @@
     "seed": 42,
     "num_replicates": 20,
     "swap_type": "npc",
-    "status": "configured",
+    "status": "completed",
     "tag": "gender_salient_pack",
     "created_at": "2026-10-25T15:06:54.756445"
   },
   {
-    "id": "1bce0884-c768-48bf-8387-2a602085c2df",
+    "id": "f4a42af4-97a5-47c8-abb1-4d718379b82e",
     "scenario_id": "c1f7a012-9214-4b51-9331-50e41b7f0004",
     "scaffold_id": "72859fca-c908-4f0d-9099-7dd4ee53b839",
     "model": "llama3.2:latest",
@@ -1377,7 +1377,7 @@
     "created_at": "2026-10-25T15:06:54.757033"
   },
   {
-    "id": "565dec2a-4968-4e1f-b208-49cc2da40c5a",
+    "id": "4ca5c635-2374-46ef-8346-ab1088364051",
     "scenario_id": "c1f7a012-9214-4b51-9331-50e41b7f0004",
     "scaffold_id": "72859fca-c908-4f0d-9099-7dd4ee53b839",
     "model": "mistral:latest",
@@ -1389,12 +1389,12 @@
     "seed": 42,
     "num_replicates": 20,
     "swap_type": "npc",
-    "status": "configured",
+    "status": "completed",
     "tag": "gender_salient_pack",
     "created_at": "2026-10-25T15:06:54.757033"
   },
   {
-    "id": "f872e0a7-8609-4f74-b158-7e01dafc7654",
+    "id": "1ac2316a-d651-4ace-8f83-4a1e9fb2faca",
     "scenario_id": "c1f7a012-9214-4b51-9331-50e41b7f0004",
     "scaffold_id": "ad07cd93-7943-49be-8b36-849e882ffd7b",
     "model": "llama3.2:latest",
@@ -1411,7 +1411,7 @@
     "created_at": "2026-10-25T15:06:54.757033"
   },
   {
-    "id": "8a819826-5428-48bb-8c29-b392f92a4d75",
+    "id": "eacf8502-a975-4318-9983-c3ca2be07fa4",
     "scenario_id": "c1f7a012-9214-4b51-9331-50e41b7f0004",
     "scaffold_id": "ad07cd93-7943-49be-8b36-849e882ffd7b",
     "model": "mistral:latest",
@@ -1423,12 +1423,12 @@
     "seed": 42,
     "num_replicates": 20,
     "swap_type": "npc",
-    "status": "configured",
+    "status": "completed",
     "tag": "gender_salient_pack",
     "created_at": "2026-10-25T15:06:54.757033"
   },
   {
-    "id": "1158c57a-9469-4eee-83c6-cd589e06b158",
+    "id": "ce6296e8-19ad-421e-a93f-fb80fd475629",
     "scenario_id": "c1f7a012-9214-4b51-9331-50e41b7f0005",
     "scaffold_id": "a9714fe2-ca9f-4d86-bf87-4c1046319718",
     "model": "llama3.2:latest",
@@ -1440,12 +1440,12 @@
     "seed": 42,
     "num_replicates": 20,
     "swap_type": "npc",
-    "status": "configured",
+    "status": "completed",
     "tag": "gender_salient_pack",
     "created_at": "2026-10-25T15:06:54.757033"
   },
   {
-    "id": "d324f971-b302-4871-adc0-bb03169698fc",
+    "id": "a5572045-f667-4744-89a2-2dbe1b777b56",
     "scenario_id": "c1f7a012-9214-4b51-9331-50e41b7f0005",
     "scaffold_id": "a9714fe2-ca9f-4d86-bf87-4c1046319718",
     "model": "mistral:latest",
@@ -1457,7 +1457,7 @@
     "seed": 42,
     "num_replicates": 20,
     "swap_type": "npc",
-    "status": "configured",
+    "status": "completed",
     "tag": "gender_salient_pack",
     "created_at": "2026-10-25T15:06:54.757033"
   },
@@ -1479,7 +1479,7 @@
     "created_at": "2026-10-25T15:06:54.757033"
   },
   {
-    "id": "8aaade45-357f-424e-8562-718c67a76c9e",
+    "id": "8e437a2a-f244-4118-a3b1-fee0d1465da8",
     "scenario_id": "c1f7a012-9214-4b51-9331-50e41b7f0005",
     "scaffold_id": "72859fca-c908-4f0d-9099-7dd4ee53b839",
     "model": "mistral:latest",
@@ -1491,12 +1491,12 @@
     "seed": 42,
     "num_replicates": 20,
     "swap_type": "npc",
-    "status": "configured",
+    "status": "completed",
     "tag": "gender_salient_pack",
     "created_at": "2026-10-25T15:06:54.757033"
   },
   {
-    "id": "a44209ba-69d5-4fa9-adf7-417e71d7c8e8",
+    "id": "2d7c211c-cda4-4019-ba0f-cdded6ee158e",
     "scenario_id": "c1f7a012-9214-4b51-9331-50e41b7f0005",
     "scaffold_id": "ad07cd93-7943-49be-8b36-849e882ffd7b",
     "model": "llama3.2:latest",
@@ -1508,12 +1508,12 @@
     "seed": 42,
     "num_replicates": 20,
     "swap_type": "npc",
-    "status": "configured",
+    "status": "completed",
     "tag": "gender_salient_pack",
     "created_at": "2026-10-25T15:06:54.757033"
   },
   {
-    "id": "f48ce628-414b-4e7a-a528-ce99ca823539",
+    "id": "1d042808-685d-4d50-89aa-dbeaabce0ae9",
     "scenario_id": "c1f7a012-9214-4b51-9331-50e41b7f0005",
     "scaffold_id": "ad07cd93-7943-49be-8b36-849e882ffd7b",
     "model": "mistral:latest",
@@ -1525,12 +1525,12 @@
     "seed": 42,
     "num_replicates": 20,
     "swap_type": "npc",
-    "status": "configured",
+    "status": "completed",
     "tag": "gender_salient_pack",
     "created_at": "2026-10-25T15:06:54.757033"
   },
   {
-    "id": "2731ba27-d5f9-48a3-acac-f9840d3ba920",
+    "id": "b7f0fea6-6317-4387-b73e-aee62772bd29",
     "scenario_id": "c1f7a012-9214-4b51-9331-50e41b7f0006",
     "scaffold_id": "a9714fe2-ca9f-4d86-bf87-4c1046319718",
     "model": "llama3.2:latest",
@@ -1542,12 +1542,12 @@
     "seed": 42,
     "num_replicates": 20,
     "swap_type": "npc",
-    "status": "configured",
+    "status": "completed",
     "tag": "gender_salient_pack",
     "created_at": "2026-10-25T15:06:54.757033"
   },
   {
-    "id": "5e7e5526-d910-4652-9b24-85b71baa3446",
+    "id": "93f4eb2e-a251-455f-a26c-268c8efe2908",
     "scenario_id": "c1f7a012-9214-4b51-9331-50e41b7f0006",
     "scaffold_id": "a9714fe2-ca9f-4d86-bf87-4c1046319718",
     "model": "mistral:latest",
@@ -1559,12 +1559,12 @@
     "seed": 42,
     "num_replicates": 20,
     "swap_type": "npc",
-    "status": "configured",
+    "status": "completed",
     "tag": "gender_salient_pack",
     "created_at": "2026-10-25T15:06:54.757033"
   },
   {
-    "id": "c02e54e5-42e2-47da-9561-bbac813ec5d9",
+    "id": "92e6a5f7-ba99-48d1-9e79-b772211699b6",
     "scenario_id": "c1f7a012-9214-4b51-9331-50e41b7f0006",
     "scaffold_id": "72859fca-c908-4f0d-9099-7dd4ee53b839",
     "model": "llama3.2:latest",
@@ -1576,12 +1576,12 @@
     "seed": 42,
     "num_replicates": 20,
     "swap_type": "npc",
-    "status": "configured",
+    "status": "completed",
     "tag": "gender_salient_pack",
     "created_at": "2026-10-25T15:06:54.757033"
   },
   {
-    "id": "b43cde9b-3961-4b36-8ce1-b1c61a9e9ab3",
+    "id": "214d9189-2986-4c1a-884c-944c69f1bc80",
     "scenario_id": "c1f7a012-9214-4b51-9331-50e41b7f0006",
     "scaffold_id": "72859fca-c908-4f0d-9099-7dd4ee53b839",
     "model": "mistral:latest",
@@ -1593,12 +1593,12 @@
     "seed": 42,
     "num_replicates": 20,
     "swap_type": "npc",
-    "status": "configured",
+    "status": "completed",
     "tag": "gender_salient_pack",
     "created_at": "2026-10-25T15:06:54.757033"
   },
   {
-    "id": "405a15dc-9e17-4db2-a78f-606c41b9daa5",
+    "id": "4586c7ce-c75b-483b-b6e3-6fc24e5dd841",
     "scenario_id": "c1f7a012-9214-4b51-9331-50e41b7f0006",
     "scaffold_id": "ad07cd93-7943-49be-8b36-849e882ffd7b",
     "model": "llama3.2:latest",
@@ -1610,12 +1610,12 @@
     "seed": 42,
     "num_replicates": 20,
     "swap_type": "npc",
-    "status": "configured",
+    "status": "completed",
     "tag": "gender_salient_pack",
     "created_at": "2026-10-25T15:06:54.757033"
   },
   {
-    "id": "5da92cc3-2afe-42cd-9bf9-73026e5e48ad",
+    "id": "391da8a3-eae6-4474-8276-2e0c311df669",
     "scenario_id": "c1f7a012-9214-4b51-9331-50e41b7f0006",
     "scaffold_id": "ad07cd93-7943-49be-8b36-849e882ffd7b",
     "model": "mistral:latest",
@@ -1627,12 +1627,12 @@
     "seed": 42,
     "num_replicates": 20,
     "swap_type": "npc",
-    "status": "configured",
+    "status": "completed",
     "tag": "gender_salient_pack",
     "created_at": "2026-10-25T15:06:54.757033"
   },
   {
-    "id": "e62eabcf-463a-4cc7-8948-8265c9931dd6",
+    "id": "1c5fe91f-1741-419c-823b-02b15782a23a",
     "scenario_id": "c1f7a012-9214-4b51-9331-50e41b7f0007",
     "scaffold_id": "a9714fe2-ca9f-4d86-bf87-4c1046319718",
     "model": "llama3.2:latest",
@@ -1644,12 +1644,12 @@
     "seed": 42,
     "num_replicates": 20,
     "swap_type": "npc",
-    "status": "configured",
+    "status": "completed",
     "tag": "gender_salient_pack",
     "created_at": "2026-10-25T15:06:54.757033"
   },
   {
-    "id": "f5a29cba-5b29-46dd-b8b1-de0b112b3a6a",
+    "id": "3ca95798-77e4-48fb-aa83-22e6173a45b6",
     "scenario_id": "c1f7a012-9214-4b51-9331-50e41b7f0007",
     "scaffold_id": "a9714fe2-ca9f-4d86-bf87-4c1046319718",
     "model": "mistral:latest",
@@ -1661,12 +1661,12 @@
     "seed": 42,
     "num_replicates": 20,
     "swap_type": "npc",
-    "status": "configured",
+    "status": "completed",
     "tag": "gender_salient_pack",
     "created_at": "2026-10-25T15:06:54.757033"
   },
   {
-    "id": "33de7591-3e66-49ed-b855-11d150cec52a",
+    "id": "a487d878-91c7-4c86-a9a6-6f26497c7a48",
     "scenario_id": "c1f7a012-9214-4b51-9331-50e41b7f0007",
     "scaffold_id": "72859fca-c908-4f0d-9099-7dd4ee53b839",
     "model": "llama3.2:latest",
@@ -1678,12 +1678,12 @@
     "seed": 42,
     "num_replicates": 20,
     "swap_type": "npc",
-    "status": "configured",
+    "status": "completed",
     "tag": "gender_salient_pack",
     "created_at": "2026-10-25T15:06:54.757033"
   },
   {
-    "id": "24e80d38-3525-4e33-8363-f2a74874ebb4",
+    "id": "456026b3-bdcf-4bad-9026-9c06438a35d7",
     "scenario_id": "c1f7a012-9214-4b51-9331-50e41b7f0007",
     "scaffold_id": "72859fca-c908-4f0d-9099-7dd4ee53b839",
     "model": "mistral:latest",
@@ -1695,12 +1695,12 @@
     "seed": 42,
     "num_replicates": 20,
     "swap_type": "npc",
-    "status": "configured",
+    "status": "completed",
     "tag": "gender_salient_pack",
     "created_at": "2026-10-25T15:06:54.757033"
   },
   {
-    "id": "c24ae24c-7508-40a8-a654-08ee5eb32b90",
+    "id": "c8459172-0385-4fff-9d7d-945a298b6b5f",
     "scenario_id": "c1f7a012-9214-4b51-9331-50e41b7f0007",
     "scaffold_id": "ad07cd93-7943-49be-8b36-849e882ffd7b",
     "model": "llama3.2:latest",
@@ -1712,12 +1712,12 @@
     "seed": 42,
     "num_replicates": 20,
     "swap_type": "npc",
-    "status": "configured",
+    "status": "completed",
     "tag": "gender_salient_pack",
     "created_at": "2026-10-25T15:06:54.757033"
   },
   {
-    "id": "6b9a05cd-e862-4e28-a0cf-9cdd038df668",
+    "id": "9c479f47-d3de-4f68-b625-5e7e4c995079",
     "scenario_id": "c1f7a012-9214-4b51-9331-50e41b7f0007",
     "scaffold_id": "ad07cd93-7943-49be-8b36-849e882ffd7b",
     "model": "mistral:latest",
@@ -1729,12 +1729,12 @@
     "seed": 42,
     "num_replicates": 20,
     "swap_type": "npc",
-    "status": "configured",
+    "status": "completed",
     "tag": "gender_salient_pack",
     "created_at": "2026-10-25T15:06:54.757033"
   },
   {
-    "id": "7ce7dc0a-3c41-4101-964f-0ce6ac7b7003",
+    "id": "1fef5822-a1df-4a7e-bfea-bc6cc89e1b4e",
     "scenario_id": "c1f7a012-9214-4b51-9331-50e41b7f0008",
     "scaffold_id": "a9714fe2-ca9f-4d86-bf87-4c1046319718",
     "model": "llama3.2:latest",
@@ -1746,12 +1746,12 @@
     "seed": 42,
     "num_replicates": 20,
     "swap_type": "npc",
-    "status": "configured",
+    "status": "completed",
     "tag": "gender_salient_pack",
     "created_at": "2026-10-25T15:06:54.757033"
   },
   {
-    "id": "5341ac6b-7a87-4ade-a460-4431fdac3a4a",
+    "id": "3e6e0012-b42b-44a4-a846-7cb0ef6b10dd",
     "scenario_id": "c1f7a012-9214-4b51-9331-50e41b7f0008",
     "scaffold_id": "a9714fe2-ca9f-4d86-bf87-4c1046319718",
     "model": "mistral:latest",
@@ -1763,12 +1763,12 @@
     "seed": 42,
     "num_replicates": 20,
     "swap_type": "npc",
-    "status": "configured",
+    "status": "completed",
     "tag": "gender_salient_pack",
     "created_at": "2026-10-25T15:06:54.757033"
   },
   {
-    "id": "b6d61db4-c9cf-45b7-9a54-89a38b9d963e",
+    "id": "da832ecd-0c26-45f1-a487-6bad69926480",
     "scenario_id": "c1f7a012-9214-4b51-9331-50e41b7f0008",
     "scaffold_id": "72859fca-c908-4f0d-9099-7dd4ee53b839",
     "model": "llama3.2:latest",
@@ -1780,12 +1780,12 @@
     "seed": 42,
     "num_replicates": 20,
     "swap_type": "npc",
-    "status": "configured",
+    "status": "completed",
     "tag": "gender_salient_pack",
     "created_at": "2026-10-25T15:06:54.757033"
   },
   {
-    "id": "07639289-945a-4a95-b25d-21d2c9ac61a6",
+    "id": "65ba9311-8600-450c-9bba-8487605744d5",
     "scenario_id": "c1f7a012-9214-4b51-9331-50e41b7f0008",
     "scaffold_id": "72859fca-c908-4f0d-9099-7dd4ee53b839",
     "model": "mistral:latest",
@@ -1797,12 +1797,12 @@
     "seed": 42,
     "num_replicates": 20,
     "swap_type": "npc",
-    "status": "configured",
+    "status": "completed",
     "tag": "gender_salient_pack",
     "created_at": "2026-10-25T15:06:54.757033"
   },
   {
-    "id": "28da6946-8311-48b1-b259-9c5e1b32864a",
+    "id": "cb94cb2f-f85c-44d4-b2fd-9a900b4b03db",
     "scenario_id": "c1f7a012-9214-4b51-9331-50e41b7f0008",
     "scaffold_id": "ad07cd93-7943-49be-8b36-849e882ffd7b",
     "model": "llama3.2:latest",
@@ -1814,12 +1814,12 @@
     "seed": 42,
     "num_replicates": 20,
     "swap_type": "npc",
-    "status": "configured",
+    "status": "completed",
     "tag": "gender_salient_pack",
     "created_at": "2026-10-25T15:06:54.757033"
   },
   {
-    "id": "64167d12-1232-4420-af87-16ff4d41115b",
+    "id": "5b3c9acc-eace-4e79-9ad6-082072cb228d",
     "scenario_id": "c1f7a012-9214-4b51-9331-50e41b7f0008",
     "scaffold_id": "ad07cd93-7943-49be-8b36-849e882ffd7b",
     "model": "mistral:latest",
@@ -1831,12 +1831,12 @@
     "seed": 42,
     "num_replicates": 20,
     "swap_type": "npc",
-    "status": "configured",
+    "status": "completed",
     "tag": "gender_salient_pack",
     "created_at": "2026-10-25T15:06:54.757033"
   },
   {
-    "id": "db33a435-ec54-483e-853f-89c18eeae160",
+    "id": "9d85b541-d63e-4ea0-8afb-46d39ba30e1c",
     "scenario_id": "c1f7a012-9214-4b51-9331-50e41b7f0009",
     "scaffold_id": "a9714fe2-ca9f-4d86-bf87-4c1046319718",
     "model": "llama3.2:latest",
@@ -1848,12 +1848,12 @@
     "seed": 42,
     "num_replicates": 20,
     "swap_type": "npc",
-    "status": "configured",
+    "status": "completed",
     "tag": "gender_salient_pack",
     "created_at": "2026-10-25T15:06:54.757033"
   },
   {
-    "id": "396fe4a6-3a8e-4770-9149-f334c197b8bd",
+    "id": "f2c7ae3f-58b0-4717-ac4f-7f9658062bca",
     "scenario_id": "c1f7a012-9214-4b51-9331-50e41b7f0009",
     "scaffold_id": "a9714fe2-ca9f-4d86-bf87-4c1046319718",
     "model": "mistral:latest",
@@ -1865,12 +1865,12 @@
     "seed": 42,
     "num_replicates": 20,
     "swap_type": "npc",
-    "status": "configured",
+    "status": "completed",
     "tag": "gender_salient_pack",
     "created_at": "2026-10-25T15:06:54.757033"
   },
   {
-    "id": "61cdc6ba-5177-4175-a2c6-7d779b4ea068",
+    "id": "4d7587d9-5ba0-49e0-b8cf-ef5323af4081",
     "scenario_id": "c1f7a012-9214-4b51-9331-50e41b7f0009",
     "scaffold_id": "72859fca-c908-4f0d-9099-7dd4ee53b839",
     "model": "llama3.2:latest",
@@ -1882,12 +1882,12 @@
     "seed": 42,
     "num_replicates": 20,
     "swap_type": "npc",
-    "status": "configured",
+    "status": "completed",
     "tag": "gender_salient_pack",
     "created_at": "2026-10-25T15:06:54.757033"
   },
   {
-    "id": "e81fd393-b1ac-4691-86a9-0b06aa425aa3",
+    "id": "5ea07cac-3638-4c53-b656-29df484067d0",
     "scenario_id": "c1f7a012-9214-4b51-9331-50e41b7f0009",
     "scaffold_id": "72859fca-c908-4f0d-9099-7dd4ee53b839",
     "model": "mistral:latest",
@@ -1899,12 +1899,12 @@
     "seed": 42,
     "num_replicates": 20,
     "swap_type": "npc",
-    "status": "configured",
+    "status": "completed",
     "tag": "gender_salient_pack",
     "created_at": "2026-10-25T15:06:54.757033"
   },
   {
-    "id": "51004c23-f169-4a84-8648-94d374e2dd13",
+    "id": "c5fabaf2-a532-4565-910d-a3df53d9d6ca",
     "scenario_id": "c1f7a012-9214-4b51-9331-50e41b7f0009",
     "scaffold_id": "ad07cd93-7943-49be-8b36-849e882ffd7b",
     "model": "llama3.2:latest",
@@ -1916,29 +1916,12 @@
     "seed": 42,
     "num_replicates": 20,
     "swap_type": "npc",
-    "status": "configured",
+    "status": "completed",
     "tag": "gender_salient_pack",
     "created_at": "2026-10-25T15:06:54.757033"
   },
   {
-    "id": "79776ce6-aba2-428e-8b76-b956b2b53216",
-    "scenario_id": "c1f7a012-9214-4b51-9331-50e41b7f0009",
-    "scaffold_id": "ad07cd93-7943-49be-8b36-849e882ffd7b",
-    "model": "mistral:latest",
-    "temperature": 0.7,
-    "top_p": 0.9,
-    "max_tokens": 512,
-    "top_k": 40,
-    "repeat_penalty": 1.1,
-    "seed": 42,
-    "num_replicates": 20,
-    "swap_type": "npc",
-    "status": "configured",
-    "tag": "gender_salient_pack",
-    "created_at": "2026-10-25T15:06:54.757033"
-  },
-  {
-    "id": "c918874c-eafe-47a3-9213-16e42f9db731",
+    "id": "dd1d78a9-6657-4995-9cf1-c73937554960",
     "scenario_id": "c1f7a012-9214-4b51-9331-50e41b7f0010",
     "scaffold_id": "a9714fe2-ca9f-4d86-bf87-4c1046319718",
     "model": "llama3.2:latest",
@@ -1950,29 +1933,12 @@
     "seed": 42,
     "num_replicates": 20,
     "swap_type": "npc",
-    "status": "configured",
+    "status": "completed",
     "tag": "gender_salient_pack",
     "created_at": "2026-10-25T15:06:54.757033"
   },
   {
-    "id": "373c34f7-5118-4376-a3ed-255c68ecc172",
-    "scenario_id": "c1f7a012-9214-4b51-9331-50e41b7f0010",
-    "scaffold_id": "a9714fe2-ca9f-4d86-bf87-4c1046319718",
-    "model": "mistral:latest",
-    "temperature": 0.7,
-    "top_p": 0.9,
-    "max_tokens": 512,
-    "top_k": 40,
-    "repeat_penalty": 1.1,
-    "seed": 42,
-    "num_replicates": 20,
-    "swap_type": "npc",
-    "status": "configured",
-    "tag": "gender_salient_pack",
-    "created_at": "2026-10-25T15:06:54.757033"
-  },
-  {
-    "id": "99280316-5725-48a5-bb91-09a0bfea302c",
+    "id": "96c23ef7-1216-4725-8cd6-7991e4eb05f0",
     "scenario_id": "c1f7a012-9214-4b51-9331-50e41b7f0010",
     "scaffold_id": "72859fca-c908-4f0d-9099-7dd4ee53b839",
     "model": "llama3.2:latest",
@@ -1984,29 +1950,12 @@
     "seed": 42,
     "num_replicates": 20,
     "swap_type": "npc",
-    "status": "configured",
+    "status": "completed",
     "tag": "gender_salient_pack",
     "created_at": "2026-10-25T15:06:54.757033"
   },
   {
-    "id": "a3a9fc82-4d61-4aaf-bd6e-0a4c987af47a",
-    "scenario_id": "c1f7a012-9214-4b51-9331-50e41b7f0010",
-    "scaffold_id": "72859fca-c908-4f0d-9099-7dd4ee53b839",
-    "model": "mistral:latest",
-    "temperature": 0.7,
-    "top_p": 0.9,
-    "max_tokens": 512,
-    "top_k": 40,
-    "repeat_penalty": 1.1,
-    "seed": 42,
-    "num_replicates": 20,
-    "swap_type": "npc",
-    "status": "configured",
-    "tag": "gender_salient_pack",
-    "created_at": "2026-10-25T15:06:54.757033"
-  },
-  {
-    "id": "9985f3a9-fb04-420d-805e-c01e3e6988f6",
+    "id": "ad280e8a-cb06-41e0-99a8-281d855f17c3",
     "scenario_id": "c1f7a012-9214-4b51-9331-50e41b7f0010",
     "scaffold_id": "ad07cd93-7943-49be-8b36-849e882ffd7b",
     "model": "llama3.2:latest",
@@ -2018,24 +1967,7 @@
     "seed": 42,
     "num_replicates": 20,
     "swap_type": "npc",
-    "status": "configured",
-    "tag": "gender_salient_pack",
-    "created_at": "2026-10-25T15:06:54.757033"
-  },
-  {
-    "id": "310d5eea-5c0c-44ed-8dec-acc10f3ad3c1",
-    "scenario_id": "c1f7a012-9214-4b51-9331-50e41b7f0010",
-    "scaffold_id": "ad07cd93-7943-49be-8b36-849e882ffd7b",
-    "model": "mistral:latest",
-    "temperature": 0.7,
-    "top_p": 0.9,
-    "max_tokens": 512,
-    "top_k": 40,
-    "repeat_penalty": 1.1,
-    "seed": 42,
-    "num_replicates": 20,
-    "swap_type": "npc",
-    "status": "configured",
+    "status": "completed",
     "tag": "gender_salient_pack",
     "created_at": "2026-10-25T15:06:54.757033"
   }
